@@ -6,11 +6,6 @@ use PEAR2\Net\RouterOS;
 // Register the PPPoE Monitor menu
 register_menu(" PPPoE Monitor", true, "pppoe_monitor_ui", 'AFTER_SETTINGS', 'ion ion-ios-pulse', "Hot", "red");
 
-// Define the routes
-$routes->map('plugin/pppoe_monitor_ui', 'pppoe_monitor_ui', ['GET']);
-$routes->map('plugin/pppoe_monitor_get_ppp_online_users/[router_id]', 'pppoe_monitor_get_ppp_online_users', ['GET']);
-$routes->map('plugin/pppoe_monitor_delete_ppp_user/[router_id]/[username]', 'pppoe_monitor_delete_ppp_user', ['POST']);
-
 function pppoe_monitor_ui()
 {
     global $ui, $routes;
@@ -197,7 +192,7 @@ function pppoe_online()
 
     foreach ($pppUsers as $pppUser) {
         $username = $pppUser->getProperty('name');
-        $interfaceName = "<pppoe-$username>";
+        $interfaceName = "<pppoe-$username>"; // Tambahkan karakter < dan >
 
         // Ensure interface name is not empty and it's not already in the list
         if (!empty($interfaceName) && !in_array($interfaceName, $pppoeInterfaces)) {
@@ -208,6 +203,8 @@ function pppoe_online()
     // Return the list of PPPoE interfaces
     return $pppoeInterfaces;
 }
+
+
 
 function get_interfaces_list()
 {
@@ -229,7 +226,8 @@ function get_interfaces_list()
 
     $interfaceList = [];
     foreach ($interfaces as $interface) {
-        $interfaceList[] = $interface->getProperty('name');
+        $name = $interface->getProperty('name');
+        $interfaceList[] = $name; // Jangan menghapus karakter < dan > dari nama interface
     }
 
     return $interfaceList;
