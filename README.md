@@ -1,6 +1,4 @@
-
-
-## If something goes wrong, it is your own responsibility ##
+## If something goes wrong, it is your own responsibility, don't forget to backup before something bad happens
 
 
 # PPPoE Monitor Detail and Reconnect
