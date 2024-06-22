@@ -303,7 +303,6 @@
 <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
 
-<!-- Skrip lainnya setelah jQuery dan DataTables -->
 <script>
 
 var $j = jQuery.noConflict();
@@ -320,7 +319,7 @@ $j(document).ready(function() {
             { data: 'tx' },
             { data: 'rx' },
             { data: 'total' },
-            { 
+            {
                 data: 'status',
                 render: function(data, type, row) {
                     if (data === 'Connected') {
@@ -332,7 +331,7 @@ $j(document).ready(function() {
                     }
                 }
             },
-            { 
+            {
                 data: null,
                 render: function(data, type, row) {
                     return '<div class="dropdown">' +
@@ -345,13 +344,27 @@ $j(document).ready(function() {
                 }
             }
         ],
+        columnDefs: [
+            {
+                targets: 0,
+                visible: false
+            }
+        ],
+        order: [[0, 'asc']], // Default sorting by .id column
+        pageLength: 10,
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'All']],
+        dom: 'Bfrtip',
+        buttons: [
+           'reset',
+            'pageLength'
+        ],
         paging: true,
         searching: true,
         ordering: true,
         info: true,
         ajax: {
             url: '{$_url}plugin/pppoe_monitor_get_ppp_online_users/{$router}',
-            dataSrc: ''
+            dataSrc: '',
         }
     });
 
@@ -401,7 +414,7 @@ $j(document).ready(function() {
         var id = $j(this).data('id'); // Ambil .id dari tombol data: { id: id, username: username }
 
         // Mengisi modal dengan informasi yang sesuai
-        $j('#modalUsername').text(username);
+        $j('#modalUsername').text(username.toString());
 
         // Memuat data interface terkait untuk username yang dipilih
         $j.ajax({
@@ -412,14 +425,14 @@ $j(document).ready(function() {
                 if (response.length > 0) {
                     // Filter interfaces based on username
                     var user = response.find(function(item) {
-                        return item.username === username;
+                        return (item.username && item.username.toString().toLowerCase() === username.toString().toLowerCase());
                     });
 
-                    if (user) {
+                    if (username !== null && user !== null && user.username !== null) {
                         var interfaceValue = '<pppoe-' + user.username + '>';
 
                         // Menetapkan nilai interface pada elemen input tersembunyi
-                        $j('#interface').val(interfaceValue);
+                        $j('#interface').val(interfaceValue.toString());
 
                         // Menampilkan nama interface pada span
                         $j('#selectedInterface').text(interfaceValue);
@@ -593,9 +606,7 @@ function updateTrafficValues() {
         }
     });
 }
-
-
-createChart();
+</script>
 </script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
