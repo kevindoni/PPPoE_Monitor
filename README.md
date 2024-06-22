@@ -1,3 +1,8 @@
+
+
+## If something goes wrong, it is your own responsibility ##
+
+
 # PPPoE Monitor Detail and Reconnect
 
  PPPoE Monitor Detail and Reconnect User Active Mikrotik For PhpNuxBill
