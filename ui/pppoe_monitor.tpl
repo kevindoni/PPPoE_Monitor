@@ -199,6 +199,9 @@
       height: auto;
       margin-top: 15px;
     }
+    .dataSize {
+        white-space: nowrap; /* Mencegah teks dari pemisahan kata */
+    }
 </style>
 
 <!-- Tambahkan ikon dan perbaikan lainnya pada HTML -->
@@ -309,6 +312,7 @@ var $j = jQuery.noConflict();
 
 $j(document).ready(function() {
     var table = $j('#ppp-table').DataTable({
+        responsive: true,
         columns: [
             { data: 'id' }, // Kolom .id
             { data: 'username' },
@@ -316,9 +320,9 @@ $j(document).ready(function() {
             { data: 'uptime' },
             { data: 'service' },
             { data: 'caller_id' },
-            { data: 'tx' },
-            { data: 'rx' },
-            { data: 'total' },
+            { data: 'tx', className: 'dataSize' },
+            { data: 'rx', className: 'dataSize' },
+            { data: 'total', className: 'dataSize' },
             {
                 data: 'status',
                 render: function(data, type, row) {
