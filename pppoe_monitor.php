@@ -1,6 +1,5 @@
 <?php
 
-use PEAR2\Net\RouterOS\Client;
 use PEAR2\Net\RouterOS;
 
 // Register the PPPoE Monitor menu
@@ -15,9 +14,7 @@ function pppoe_monitor_ui()
     $admin = Admin::_info();
     $ui->assign('_admin', $admin);
     $routers = ORM::for_table('tbl_routers')->where('enabled', '1')->find_many();
-    $router = $routes['2'] ?? $routers[0]['id']; // Menggunakan null coalescing operator untuk memilih router pertama jika tidak ada yang dipilih
-
-    // Menambahkan header tambahan untuk CSS DataTables
+    $router = $routes['2'] ?? $routers[0]['id']; 
     $ui->assign('xheader', '
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap5.min.css">
     ');
@@ -56,6 +53,10 @@ function pppoe_monitor_get_ppp_online_users()
     $userList = [];
     foreach ($pppUsers as $pppUser) {
         $username = $pppUser->getProperty('name');
+        // Skip the current iteration if the username is empty
+        if (empty($username)) {
+            continue;
+        }
         $address = $pppUser->getProperty('address');
         $uptime = $pppUser->getProperty('uptime');
         $service = $pppUser->getProperty('service');
@@ -204,6 +205,37 @@ function pppoe_online()
     return $pppoeInterfaces;
 }
 
+function pppoe_monitor_set_rate_limit()
+{
+    global $routes;
+    $router = $routes['2'];
+    $username = $_POST['username']; // Get the username from POST data
+    $rate_limit = $_POST['rate_limit']; // Get the rate limit from POST data
+
+    $mikrotik = ORM::for_table('tbl_routers')->where('enabled', '1')->find_one($router);
+    $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
+
+    try {
+        // Find the PPPoE user
+        $pppUsers = $client->sendSync(new RouterOS\Request('/ppp/secret/print', ['?name' => $username]));
+        if (empty($pppUsers)) {
+            throw new Exception('PPPoE user not found');
+        }
+        $pppUser = $pppUsers[0];
+
+        // Set the rate limit
+        $request = new RouterOS\Request('/ppp/secret/set');
+        $request->setArgument('.id', $pppUser->getProperty('.id'));
+        $request->setArgument('rate-limit', $rate_limit);
+        $client->sendSync($request);
+
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'message' => 'Rate limit successfully set.']);
+    } catch (Exception $e) {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'message' => 'Failed to set rate limit: ' . $e->getMessage()]);
+    }
+}
 
 
 function get_interfaces_list()
