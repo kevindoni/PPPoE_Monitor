@@ -1,7 +1,19 @@
 {include file="sections/header.tpl"}
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css"></script>
+<script src="https://cdn.datatables.net/buttons/1.7.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.7.1/css/buttons.dataTables.min.css"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
+
 <style>
-    /* Style untuk modal */
     .modal {
     display: none;
     position: fixed;
@@ -13,17 +25,15 @@
     overflow: auto;
     background-color: rgba(0, 0, 0, 0.4);
     }
-
     .modal-content {
     background-color: #fefefe;
     margin: 15% auto;
-    padding: 20px;
+    padding: 0px;
     border: 1px solid #888;
     width: 80%;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     max-width: 600px;
     }
-
     .close {
     color: #aaa;
     float: right;
@@ -31,34 +41,26 @@
     font-weight: bold;
     cursor: pointer;
     }
-
     .close:hover,
     .close:focus {
     color: black;
     text-decoration: none;
     }
-    /* Style untuk modal */
-
-    /* Style untuk card-body di dalam modal */
     .card-body {
     padding: 1rem;
     }
-
     .card-header {
     padding: .75rem 1.25rem;
     margin-bottom: 0;
-    background-color: #f5f5f5;
+    background-color: none;
     border-bottom: 1px solid rgba(0,0,0,.125);
     }
-
     .card-title {
     margin-bottom: .75rem;
     }
-
     .form-group {
     margin-bottom: 1rem;
     }
-
     .table-responsive {
     display: block;
     width: 100%;
@@ -66,13 +68,11 @@
     -webkit-overflow-scrolling: touch;
     -ms-overflow-style: -ms-autohiding-scrollbar;
     }
-
     .table {
     width: 100%;
     margin-bottom: 1rem;
     color: #212529;
     }
-    /* Custom styling for the table */
     .container {
         padding-top: 20px;
     }
@@ -81,63 +81,55 @@
     }
     #ppp-table th, #ppp-table td {
         text-align: center;
-        padding: 6px; /* Adjust padding for better spacing */
+        padding: 6px;
     }
     .table-striped tbody tr:nth-of-type(odd) {
-        background-color: #f9f9f9; /* Alternating row background color */
+        background-color: #f9f9f9;
     }
-    /* New styles for enhanced look */
     .panel-default {
-        border-color: #ddd; /* Lighter border for panels */
+        border-color: #ddd;
     }
     .panel-heading {
-        background-color: #f5f5f5; /* Light gray background for panel heading */
+        background-color: #f5f5f5;
         border-color: #ddd;
     }
     .nav-tabs {
-        margin-bottom: 15px; /* Margin below tabs */
+        margin-bottom: 15px;
     }
     .nav-tabs > li > a {
         border-radius: 0;
-        color: #555; /* Text color */
-        background-color: #f9f9f9; /* Background color */
-        border-color: #ddd; /* Border color */
+        color: #555;
+        background-color: #f9f9f9;
+        border-color: #ddd;
     }
     .nav-tabs > li.active > a,
     .nav-tabs > li.active > a:focus,
     .nav-tabs > li.active > a:hover {
-        background-color: #fff; /* Active tab background color */
-        color: #333; /* Active tab text color */
-        border: 1px solid #ddd; /* Active tab border color */
-        border-bottom-color: transparent; /* Prevent doubling of border */
+        background-color: #fff;
+        color: #333;
+        border: 1px solid #ddd;
+        border-bottom-color: transparent;
         cursor: default;
     }
     .table-striped tbody tr:nth-of-type(odd) {
-        background-color: #f9f9f9; /* Alternating row background color */
+        background-color: #f9f9f9;
     }
     .table th {
-        background-color: #f5f5f5; /* Header background color */
-        color: #333; /* Header text color */
-        font-weight: bold; /* Bold header text */
-        padding: 8px; /* Adjust padding for better spacing */
+        background-color: #f5f5f5;
+        color: #333;
+        font-weight: bold;
+        padding: 8px;
     }
     .table-striped > tbody > tr > td {
-        background-color: #fff; /* Table cell background color */
-    }
-    .dropdown-menu {
-        min-width: 100px; /* Set minimum width for dropdown menu */
+        background-color: #fff;
     }
     .status-connect {
-        color: #5cb85c; /* Green color for connected status */
+        color: #5cb85c;
     }
     .status-disconnect {
-        color: #d9534f; /* Red color for disconnected status */
+        color: #d9534f;
     }
-    .dropdown-menu .btn {
-    width: 70%; /* Menetapkan lebar penuh untuk tombol di dropdown */
-    }
-      /* Gaya untuk popup banner */
-        .modalsupport {
+      .modalsupport {
       display: none;
       position: fixed;
       z-index: 1;
@@ -151,61 +143,82 @@
       justify-content: center;
       align-items: center;
     }
-
     .modalsupport-content {
       background-color: #fefefe;
       margin: auto;
-      padding: 20px;
+      padding: 0px;
       border: 1px solid #888;
       width: 80%;
       max-width: 500px;
       box-shadow: 0 5px 15px rgba(0,0,0,0.3);
       text-align: center;
     }
-
     .modalsupport-close {
       color: #aaa;
       float: right;
       font-size: 28px;
       font-weight: bold;
     }
-
     .modalsupport-close:hover,
     .modalsupport-close:focus {
       color: black;
       text-decoration: none;
       cursor: pointer;
     }
-
     .card {
       border: none;
     }
-
     .card-header {
-      background-color: #f7f7f7;
+      background-color: none;
       border-bottom: none;
     }
-
     .card-body {
       padding: 20px;
     }
-
     .donate-button {
       margin-top: 10px;
     }
-
     .modalsupport img {
       width: 100px;
       height: auto;
       margin-top: 15px;
     }
     .dataSize {
-        white-space: nowrap; /* Mencegah teks dari pemisahan kata */
+        white-space: nowrap;
     }
+    .action-icons i {
+      cursor: pointer;
+      margin-right: 10px;
+      color: #007bff;
+    }
+    .action-icons i:hover {
+      color: #0056b3;
+    }
+    .modal-title {
+    text-align: center;
+    width: 100%;
+    display: block;
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 20px;
+  }
+  .table-bordered {
+      width: 100%;
+      max-width: 100%;
+      table-layout: fixed;
+  }
+  .table-bordered th, .table-bordered td {
+      width: auto;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      background: none;
+      border: none;
+      padding: 10px;
+      vertical-align: middle;
+      text-align: center;
+  }
 </style>
-
-<!-- Tambahkan ikon dan perbaikan lainnya pada HTML -->
-<!-- Tabel PPPoE -->
 <div class="container">
     <div class="row">
         <div class="col-sm-12 col-md-12">
@@ -219,7 +232,6 @@
                     {/foreach}
                 </ul>
             </form>
-            <!-- Panel untuk tabel PPPoE -->
             <div class="panel panel-default">
                 <div class="panel-heading">PPPoE Monitor</div>
                 <div class="table-responsive">
@@ -250,15 +262,13 @@
         </div>
     </div>
 </div>
-<!-- MODAL DETAILS -->
-    <!-- Modal -->
 <div id="detailsModal" class="modal">
   <div class="modal-content">
     <span class="close">&times;</span>
     <div class="container-fluid mt-5">
       <div class="card">
         <div class="card-header">
-          <h5 class="modal-title">Details for <span id="modalUsername"></span></h5>
+          <h5 class="modal-title">Trafik for <span id="modalUsername"></span></h5>
         </div>
         <div class="card-body">
           <div class="table-responsive mt-4">
@@ -266,9 +276,8 @@
               <thead>
                 <tr>
                 <input type="hidden" id="interface" value="">
-                <span id="selectedInterface" style="display:none;"></span>
-                  <th id="tabletx"><strong>TX:</strong> 0 B</th>
-                  <th id="tablerx"><strong>RX:</strong> 0 B</th>
+                  <th id="tabletx"><i class="fa fa-download"></i></th>
+                  <th id="tablerx"><i class="fa fa-upload"></i></th>
                 </tr>
               </thead>
             </table>
@@ -279,7 +288,6 @@
     </div>
   </div>
 </div>
-
 <div id="donationPopup" class="modalsupport">
   <div class="modalsupport-content">
     <span class="modalsupport-close">&times;</span>
@@ -298,23 +306,14 @@
     </div>
   </div>
 </div>
-<!-- MODAL DETAILS END -->
-<!-- Memuat jQuery terlebih dahulu -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-<!-- Kemudian memuat DataTables dan plugin terkait -->
-<script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
-
 <script>
-
 var $j = jQuery.noConflict();
 
 $j(document).ready(function() {
     var table = $j('#ppp-table').DataTable({
         responsive: true,
         columns: [
-            { data: 'id' }, // Kolom .id
+            { data: 'id', visible: false },
             { data: 'username' },
             { data: 'address' },
             { data: 'uptime' },
@@ -325,60 +324,92 @@ $j(document).ready(function() {
             { data: 'total', className: 'dataSize' },
             {
                 data: 'status',
-                render: function(data, type, row) {
+                render: function(data) {
                     if (data === 'Connected') {
                         return '<small class="label bg-green">Connected</small>';
                     } else if (data === 'Disconnected') {
                         return '<small class="label bg-red">Disconnected</small>';
                     } else {
-                        return ''; // Handle other cases if necessary
+                        return '';
                     }
                 }
             },
             {
                 data: null,
                 render: function(data, type, row) {
-                    return '<div class="dropdown">' +
-                                '<button class="btn btn-default dropdown-toggle btn-xs" type="button" data-toggle="dropdown">Action <span class="caret"></span></button>' +
-                                '<ul class="dropdown-menu">' +
-                                    '<button class="btn btn-warning btn-xs disconnect-button" data-username="' + row.username + '" data-id="' + row.id + '">Reconnect</button>' +
-                                    '<button class="btn btn-info btn-xs view-details" data-username="' + row.username + '" data-id="' + row.id + '">Details</button>' +
-                                '</ul>' +
-                            '</div>';
+
+                return '<div class="action-icons" style="display: flex; align-items: center;">' +
+                      '<i class="fa fa-area-chart view-details" style="color: blue; cursor: pointer;" title="View Trafik" data-username="' + row.username + '" data-id="' + row.id + '"></i> ' +
+                      '<i class="fa fa-retweet reconnect-button" style="color: red;cursor: pointer;" title="Reconnect" data-username="' + row.username + '" data-id="' + row.id + '"></i>' +
+                      '</div>';
                 }
             }
         ],
-        columnDefs: [
-            {
-                targets: 0,
-                visible: false
-            }
-        ],
-        order: [[0, 'asc']], // Default sorting by .id column
+        order: [[0, 'asc']],
         pageLength: 10,
         lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'All']],
         dom: 'Bfrtip',
-        buttons: [
-           'reset',
-            'pageLength'
-        ],
+        buttons: ['reset', 'pageLength'],
         paging: true,
         searching: true,
         ordering: true,
         info: true,
         ajax: {
             url: '{$_url}plugin/pppoe_monitor_get_ppp_online_users/{$router}',
-            dataSrc: '',
+            dataSrc: ''
         }
     });
 
-    // Handle disconnect button clicks
-    $j('#ppp-table tbody').on('click', '.disconnect-button', function(e) {
-        e.preventDefault(); // Prevent default action of anchor tag
-
+    // Handle view details icon clicks
+    $j('#ppp-table tbody').on('click', '.view-details', function(e) {
+        e.preventDefault();
         var username = $j(this).data('username');
-        var id = $j(this).data('id'); // Ambil .id dari tombol
+        var id = $j(this).data('id');
 
+        viewDetails(id, username);
+    });
+
+    // Handle reconnect icon clicks
+    $j('#ppp-table tbody').on('click', '.reconnect-button', function(e) {
+        e.preventDefault();
+        var username = $j(this).data('username');
+        var id = $j(this).data('id');
+
+        reconnect(id, username);
+    });
+
+    // Function to handle view details
+    function viewDetails(id, username) {
+        $j('#modalUsername').text(username);
+
+        $j.ajax({
+            url: '{$_url}plugin/pppoe_monitor_get_ppp_online_users',
+            method: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                var user = response.find(function(item) {
+                    return (item.username && item.username.toString().toLowerCase() === username.toString().toLowerCase());
+                });
+
+                if (username !== null && user !== null && user.username !== null) {
+                    var interfaceValue = '<pppoe-' + user.username + '>';
+                    $j('#interface').val(interfaceValue);
+                    $j('#selectedInterface').text(interfaceValue);
+                    $j('#detailsModal').css('display', 'block');
+                    createChart();
+                } else {
+                    alert('User not found.');
+                }
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                alert('Failed to retrieve user data.');
+                console.error('AJAX error:', textStatus, errorThrown);
+            }
+        });
+    }
+
+    // Function to handle reconnect
+    function reconnect(id, username) {
         if (confirm('Are you sure you want to disconnect user ' + username + '?')) {
             $j.ajax({
                 url: '{$_url}plugin/pppoe_monitor_delete_ppp_user/{$router}',
@@ -388,84 +419,26 @@ $j(document).ready(function() {
                     if (response.success) {
                         alert('User ' + username + ' has been disconnected.');
                         setTimeout(function() {
-                            table.ajax.reload(); // Refresh table data
-                        }, 2000); // Tunda pembaruan tabel selama 2 detik
+                            table.ajax.reload();
+                        }, 2000);
                     } else {
                         alert('Failed to disconnect user ' + username + ': ' + response.message);
                     }
                 },
-                error: function(xhr, error, thrown) {
+                error: function(xhr, textStatus, errorThrown) {
                     alert('Failed to disconnect user ' + username + '.');
-                    console.log('AJAX error:', error);
+                    console.error('AJAX error:', textStatus, errorThrown);
                 }
             });
         }
-    });
+    }
 
-});
-
-var chart;
-var chartData = {
-  txData: [],
-  rxData: []
-};
-
-$j(document).ready(function() {
-    // Menampilkan modal saat tombol "Details" diklik
-    $j('#ppp-table tbody').on('click', '.view-details', function(e) {
-        e.preventDefault();
-        var username = $j(this).data('username');
-        var id = $j(this).data('id'); // Ambil .id dari tombol data: { id: id, username: username }
-
-        // Mengisi modal dengan informasi yang sesuai
-        $j('#modalUsername').text(username.toString());
-
-        // Memuat data interface terkait untuk username yang dipilih
-        $j.ajax({
-            url: '{$_url}plugin/pppoe_monitor_get_ppp_online_users', // Sesuaikan dengan URL endpoint Anda
-            method: 'GET',
-            dataType: 'json',
-            success: function(response) {
-                if (response.length > 0) {
-                    // Filter interfaces based on username
-                    var user = response.find(function(item) {
-                        return (item.username && item.username.toString().toLowerCase() === username.toString().toLowerCase());
-                    });
-
-                    if (username !== null && user !== null && user.username !== null) {
-                        var interfaceValue = '<pppoe-' + user.username + '>';
-
-                        // Menetapkan nilai interface pada elemen input tersembunyi
-                        $j('#interface').val(interfaceValue.toString());
-
-                        // Menampilkan nama interface pada span
-                        $j('#selectedInterface').text(interfaceValue);
-
-                        // Menampilkan modal
-                        $j('#detailsModal').css('display', 'block');
-
-                        // Memanggil createChart setelah modal ditampilkan untuk memastikan elemen #chart tersedia
-                        createChart();
-                    } else {
-                        alert('User not found.');
-                    }
-                } else {
-                    alert('Failed to retrieve user data.');
-                }
-            },
-            error: function(xhr, error, thrown) {
-                alert('Failed to retrieve user data.');
-                console.log('AJAX error:', error);
-            }
-        });
-    });
-
-    // Menutup modal saat tombol close diklik
+    // Close modal on click of close button
     $j('.close').click(function() {
         $j('#detailsModal').css('display', 'none');
     });
 
-    // Menutup modal saat klik di luar area modal
+    // Close modal on click outside the modal
     $j(window).click(function(event) {
         if (event.target == document.getElementById('detailsModal')) {
             $j('#detailsModal').css('display', 'none');
@@ -473,98 +446,100 @@ $j(document).ready(function() {
     });
 });
 
+var chart;
+var chartData = {
+    txData: [],
+    rxData: []
+};
 
 function createChart() {
-  var options = {
-    chart: {
-      height: 350,
-      type: 'area',
-      animations: {
-        enabled: true,
-        easing: 'linear',
-        speed: 200,
-        animateGradually: {
-          enabled: true,
-          delay: 150
+    var options = {
+        chart: {
+            height: 350,
+            type: 'area',
+            animations: {
+                enabled: true,
+                easing: 'linear',
+                speed: 200,
+                animateGradually: {
+                    enabled: true,
+                    delay: 150
+                },
+                dynamicAnimation: {
+                    enabled: true,
+                    speed: 200
+                }
+            },
+            events: {
+                mounted: function() {
+                    updateTrafficValues();
+                    setInterval(updateTrafficValues, 3000);
+                }
+            }
         },
-        dynamicAnimation: {
-          enabled: true,
-          speed: 200
+        stroke: {
+            curve: 'smooth'
+        },
+        series: [
+            { name: 'Download', data: chartData.txData },
+            { name: 'Upload', data: chartData.rxData }
+        ],
+        xaxis: {
+            type: 'datetime',
+            labels: {
+                formatter: function(value) {
+                    return new Date(value).toLocaleTimeString();
+                }
+            }
+        },
+        yaxis: {
+            title: {
+                text: 'Trafik Real Time'
+            },
+            labels: {
+                formatter: function(value) {
+                    return formatBytes(value);
+                }
+            }
+        },
+        tooltip: {
+            x: {
+                format: 'HH:mm:ss'
+            },
+            y: {
+                formatter: function(value) {
+                    return formatBytes(value) + 'ps';
+                }
+            }
+        },
+        dataLabels: {
+            enabled: true,
+            formatter: function(value) {
+                return formatBytes(value);
+            }
         }
-      },
-      events: {
-        mounted: function(chartContext, config) {
-          // Initially load data and set up refresh interval
-          updateTrafficValues();
-          setInterval(updateTrafficValues, 3000);
-        }
-      }
-    },
-    stroke: {
-      curve: 'smooth'
-    },
-    series: [{
-      name: 'Upload',
-      data: chartData.txData
-    }, {
-      name: 'Download',
-      data: chartData.rxData
-    }],
-    xaxis: {
-      type: 'datetime',
-      labels: {
-        formatter: function(value) {
-          return new Date(value).toLocaleTimeString();
-        }
-      }
-    },
-    yaxis: {
-      title: {
-        text: 'Lalu Lintas Langsung'
-      },
-      labels: {
-        formatter: function(value) {
-          return formatBytes(value);
-        }
-      }
-    },
-    tooltip: {
-      x: {
-        format: 'HH:mm:ss'
-      },
-      y: {
-        formatter: function(value) {
-          return formatBytes(value) + 'ps';
-        }
-      }
-    },
-    dataLabels: {
-      enabled: true,
-      formatter: function(value) {
-        return formatBytes(value);
-      }
-    }
-  };
-  chart = new ApexCharts(document.querySelector("#chart"), options);
-  chart.render();
+    };
+
+    chart = new ApexCharts(document.querySelector("#chart"), options);
+    chart.render();
 }
 
 function formatBytes(bytes) {
-  if (bytes === 0) {
-    return '0 B';
-  }
-  var k = 1024;
-  var sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-  var i = Math.floor(Math.log(bytes) / Math.log(k));
-  var formattedValue = parseFloat((bytes / Math.pow(k, i)).toFixed(2));
-  return formattedValue + ' ' + sizes[i];
+    if (bytes === 0) {
+        return '0 B';
+    }
+    var k = 1024;
+    var sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    var i = Math.floor(Math.log(bytes) / Math.log(k));
+    var formattedValue = parseFloat((bytes / Math.pow(k, i)).toFixed(2));
+    return formattedValue + ' ' + sizes[i];
 }
 
 function updateTrafficValues() {
-    var username = $j('#modalUsername').text().trim(); // Get username from modal
-    var interface = $j('#interface').val(); // Get selected interface
+    var username = $j('#modalUsername').text().trim();
+    var interfaceValue = $j('#interface').val();
 
-    if (!username || !interface) {
+    if (!username || !interfaceValue) {
         console.error("Username or interface is undefined or empty.");
         return;
     }
@@ -572,66 +547,61 @@ function updateTrafficValues() {
     $j.ajax({
         url: '{$_url}plugin/pppoe_monitor_traffic/{$router}',
         dataType: 'json',
-        data: {
-            username: username,
-            interface: interface // Include interface in data payload
-        },
+        data: { username: username, interface: interfaceValue },
         success: function(data) {
             var timestamp = new Date().getTime();
-            var txData = data.rows.tx;
-            var rxData = data.rows.rx;
-            if (txData.length > 0 && rxData.length > 0) {
-                var TX = parseInt(txData[0]);
-                var RX = parseInt(rxData[0]);
-                chartData.txData.push({ x: timestamp, y: TX });
-                chartData.rxData.push({ x: timestamp, y: RX });
-                var maxDataPoints = 10;
-                if (chartData.txData.length > maxDataPoints) {
-                    chartData.txData.shift();
-                    chartData.rxData.shift();
-                }
-                chart.updateSeries([{
-                    name: 'Upload',
-                    data: chartData.txData
-                }, {
-                    name: 'Download',
-                    data: chartData.rxData
-                }]);
-                document.getElementById("tabletx").textContent = formatBytes(TX);
-                document.getElementById("tablerx").textContent = formatBytes(RX);
-            } else {
-                document.getElementById("tabletx").textContent = "0";
-                document.getElementById("tablerx").textContent = "0";
+            var txData = parseInt(data.rows.tx[0]) || 0;
+            var rxData = parseInt(data.rows.rx[0]) || 0;
+
+            chartData.txData.push({ x: timestamp, y: txData });
+            chartData.rxData.push({ x: timestamp, y: rxData });
+
+            var maxDataPoints = 10;
+            if (chartData.txData.length > maxDataPoints) {
+                chartData.txData.shift();
+                chartData.rxData.shift();
             }
+
+            chart.updateSeries([
+                { name: 'Download', data: chartData.txData },
+                { name: 'Upload', data: chartData.rxData }
+            ]);
+
+            document.getElementById("tabletx").innerHTML = '<i class="fa fa-download"></i>&nbsp;&nbsp;' + formatBytes(txData);
+            document.getElementById("tablerx").innerHTML = '<i class="fa fa-upload"></i>&nbsp;&nbsp;' + formatBytes(rxData);
         },
-        error: function(XMLHttpRequest, textStatus, errorThrown) {
-            console.error("Status: " + textStatus + " request: " + XMLHttpRequest);
+        error: function(xhr, textStatus, errorThrown) {
+            console.error("Status: " + textStatus);
             console.error("Error: " + errorThrown);
         }
     });
 }
-</script>
-</script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
+
+
+
+// Donation Popup
+document.addEventListener('DOMContentLoaded', function() {
     setTimeout(function() {
-      document.getElementById('donationPopup').style.display = 'flex';
-    }, 1000); 
-  });
+        document.getElementById('donationPopup').style.display = 'flex';
+    }, 1000);
+});
 
-  document.getElementById('donationPopup').querySelector('.modalsupport-close').addEventListener('click', function() {
+document.getElementById('donationPopup').querySelector('.modalsupport-close').addEventListener('click', function() {
     document.getElementById('donationPopup').style.display = 'none';
-  });
+});
 
-  window.addEventListener('click', function(event) {
+window.addEventListener('click', function(event) {
     if (event.target === document.getElementById('donationPopup')) {
-      document.getElementById('donationPopup').style.display = 'none';
+        document.getElementById('donationPopup').style.display = 'none';
     }
-  });
+});
 
-  document.getElementById('donationPopup').querySelector('.donate-button').addEventListener('click', function() {
+document.getElementById('donationPopup').querySelector('.donate-button').addEventListener('click', function() {
     window.open('https://buymeacoffee.com/kevindonisaputra', '_blank');
-  });
+});
+
 </script>
+
+
 
 {include file="sections/footer.tpl"}
