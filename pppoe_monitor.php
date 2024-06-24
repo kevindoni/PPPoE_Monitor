@@ -3,9 +3,9 @@
 use PEAR2\Net\RouterOS;
 
 // Register the PPPoE Monitor menu
-register_menu(" PPPoE Monitor", true, "pppoe_monitor_ui", 'AFTER_SETTINGS', 'ion ion-ios-pulse', "Hot", "red");
+register_menu(" PPPoE Monitor", true, "pppoe_monitor_router_menu", 'AFTER_SETTINGS', 'ion ion-ios-pulse', "Hot", "red");
 
-function pppoe_monitor_ui()
+function pppoe_monitor_router_menu()
 {
     global $ui, $routes;
     _admin();
@@ -15,18 +15,41 @@ function pppoe_monitor_ui()
     $ui->assign('_admin', $admin);
     $routers = ORM::for_table('tbl_routers')->where('enabled', '1')->find_many();
     $router = $routes['2'] ?? $routers[0]['id']; 
-    $ui->assign('xheader', '
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap5.min.css">
-    ');
-    
     $ui->assign('routers', $routers);
     $ui->assign('router', $router);
-    $ui->assign('interfaces', get_interfaces_list());
+    $ui->assign('interfaces', pppoe_monitor_router_getInterface());
     
     $ui->display('pppoe_monitor.tpl');
 }
 
-function pppoe_monitor_get_ppp_online_users()
+function pppoe_monitor_router_getInterface()
+{
+    global $routes;
+    $routerId = $routes['2'] ?? null;
+
+    if (!$routerId) {
+        return [];
+    }
+
+    $mikrotik = ORM::for_table('tbl_routers')->where('enabled', '1')->find_one($routerId);
+
+    if (!$mikrotik) {
+        return [];
+    }
+
+    $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
+    $interfaces = $client->sendSync(new RouterOS\Request('/interface/print'));
+
+    $interfaceList = [];
+    foreach ($interfaces as $interface) {
+        $name = $interface->getProperty('name');
+        $interfaceList[] = $name; // Jangan menghapus karakter < dan > dari nama interface
+    }
+
+    return $interfaceList;
+}
+
+function pppoe_monitor_router_get_ppp_online_users()
 {
     global $routes;
     $router = $routes['2'];
@@ -88,9 +111,9 @@ function pppoe_monitor_get_ppp_online_users()
             'caller_id' => $callerid,
             'bytes_in' => $bytes_in,
             'bytes_out' => $bytes_out,
-            'tx' => pppoe_formatBytes($txBytes),
-            'rx' => pppoe_formatBytes($rxBytes),
-            'total' => pppoe_formatBytes($txBytes + $rxBytes),
+            'tx' => pppoe_monitor_router_formatBytes($txBytes),
+            'rx' => pppoe_monitor_router_formatBytes($rxBytes),
+            'total' => pppoe_monitor_router_formatBytes($txBytes + $rxBytes),
             'status' => $status,  // Menambahkan .id ke dalam data pengguna PPPoE
         ];
     }
@@ -100,7 +123,7 @@ function pppoe_monitor_get_ppp_online_users()
     echo json_encode($userList);
 }
 
-function pppoe_monitor_delete_ppp_user()
+function pppoe_monitor_router_delete_ppp_user()
 {
     global $routes;
     $router = $routes['2'];
@@ -122,7 +145,7 @@ function pppoe_monitor_delete_ppp_user()
     }
 }
 
-function pppoe_formatBytes($bytes, $precision = 2)
+function pppoe_monitor_router_formatBytes($bytes, $precision = 2)
 {
     $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
     $bytes = max($bytes, 0);
@@ -132,7 +155,7 @@ function pppoe_formatBytes($bytes, $precision = 2)
     return round($bytes, $precision) . ' ' . $units[$pow];
 }
 
-function pppoe_monitor_traffic()
+function pppoe_monitor_router_traffic()
 {
     $interface = $_GET["interface"]; // Ambil interface dari parameter GET
 
@@ -181,7 +204,7 @@ function pppoe_monitor_traffic()
     echo json_encode($result);
 }
 
-function pppoe_online()
+function pppoe_monitor_router_online()
 {
     global $routes;
     $router = $routes['2'];
@@ -205,7 +228,7 @@ function pppoe_online()
     return $pppoeInterfaces;
 }
 
-function pppoe_monitor_set_rate_limit()
+function pppoe_monitor_router_set_rate_limit()
 {
     global $routes;
     $router = $routes['2'];
@@ -235,32 +258,4 @@ function pppoe_monitor_set_rate_limit()
         header('Content-Type: application/json');
         echo json_encode(['success' => false, 'message' => 'Failed to set rate limit: ' . $e->getMessage()]);
     }
-}
-
-
-function get_interfaces_list()
-{
-    global $routes;
-    $routerId = $routes['2'] ?? null;
-
-    if (!$routerId) {
-        return [];
-    }
-
-    $mikrotik = ORM::for_table('tbl_routers')->where('enabled', '1')->find_one($routerId);
-
-    if (!$mikrotik) {
-        return [];
-    }
-
-    $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
-    $interfaces = $client->sendSync(new RouterOS\Request('/interface/print'));
-
-    $interfaceList = [];
-    foreach ($interfaces as $interface) {
-        $name = $interface->getProperty('name');
-        $interfaceList[] = $name; // Jangan menghapus karakter < dan > dari nama interface
-    }
-
-    return $interfaceList;
 }
