@@ -223,17 +223,17 @@
     <div class="row">
         <div class="col-sm-12 col-md-12">
             <!-- Form dan navigasi tabs -->
-            <form class="form-horizontal" method="post" role="form" action="{$_url}plugin/pppoe_monitor_ui">
+            <form class="form-horizontal" method="post" role="form" action="{$_url}plugin/pppoe_monitor_router_menu">
                 <ul class="nav nav-tabs">
                     {foreach $routers as $r}
                     <li role="presentation" {if $r['id']==$router}class="active"{/if}>
-                        <a href="{$_url}plugin/pppoe_monitor_ui/{$r['id']}">{$r['name']}</a>
+                        <a href="{$_url}plugin/pppoe_monitor_router_menu/{$r['id']}">{$r['name']}</a>
                     </li>
                     {/foreach}
                 </ul>
             </form>
             <div class="panel panel-default">
-                <div class="panel-heading">PPPoE Monitor</div>
+                <div class="panel-heading">PPPoE Monitor<button class="btn btn-info pull-right pro-feature-button" style="margin-top: -5px;">Fitur Pro</button></div>
                 <div class="table-responsive">
                     <div class="panel-body">
                         <table class="table table-striped" id="ppp-table">
@@ -355,7 +355,7 @@ $j(document).ready(function() {
         ordering: true,
         info: true,
         ajax: {
-            url: '{$_url}plugin/pppoe_monitor_get_ppp_online_users/{$router}',
+            url: '{$_url}plugin/pppoe_monitor_router_get_ppp_online_users/{$router}',
             dataSrc: ''
         }
     });
@@ -383,7 +383,7 @@ $j(document).ready(function() {
         $j('#modalUsername').text(username);
 
         $j.ajax({
-            url: '{$_url}plugin/pppoe_monitor_get_ppp_online_users',
+            url: '{$_url}plugin/pppoe_monitor_router_get_ppp_online_users',
             method: 'GET',
             dataType: 'json',
             success: function(response) {
@@ -412,7 +412,7 @@ $j(document).ready(function() {
     function reconnect(id, username) {
         if (confirm('Are you sure you want to disconnect user ' + username + '?')) {
             $j.ajax({
-                url: '{$_url}plugin/pppoe_monitor_delete_ppp_user/{$router}',
+                url: '{$_url}plugin/pppoe_monitor_router_delete_ppp_user/{$router}',
                 method: 'POST',
                 data: { id: id, username: username },
                 success: function(response) {
@@ -498,7 +498,7 @@ function createChart() {
             },
             labels: {
                 formatter: function(value) {
-                    return formatBytes(value);
+                    return pppoe_monitor_router_formatBytes(value);
                 }
             }
         },
@@ -508,14 +508,14 @@ function createChart() {
             },
             y: {
                 formatter: function(value) {
-                    return formatBytes(value) + 'ps';
+                    return pppoe_monitor_router_formatBytes(value) + 'ps';
                 }
             }
         },
         dataLabels: {
             enabled: true,
             formatter: function(value) {
-                return formatBytes(value);
+                return pppoe_monitor_router_formatBytes(value);
             }
         }
     };
@@ -524,7 +524,7 @@ function createChart() {
     chart.render();
 }
 
-function formatBytes(bytes) {
+function pppoe_pppoe_monitor_router_formatBytes(bytes) {
     if (bytes === 0) {
         return '0 B';
     }
@@ -545,7 +545,7 @@ function updateTrafficValues() {
     }
 
     $j.ajax({
-        url: '{$_url}plugin/pppoe_monitor_traffic/{$router}',
+        url: '{$_url}plugin/pppoe_monitor_router_traffic/{$router}',
         dataType: 'json',
         data: { username: username, interface: interfaceValue },
         success: function(data) {
@@ -567,8 +567,8 @@ function updateTrafficValues() {
                 { name: 'Upload', data: chartData.rxData }
             ]);
 
-            document.getElementById("tabletx").innerHTML = '<i class="fa fa-download"></i>&nbsp;&nbsp;' + formatBytes(txData);
-            document.getElementById("tablerx").innerHTML = '<i class="fa fa-upload"></i>&nbsp;&nbsp;' + formatBytes(rxData);
+            document.getElementById("tabletx").innerHTML = '<i class="fa fa-download"></i>&nbsp;&nbsp;' + pppoe_monitor_router_formatBytes(txData);
+            document.getElementById("tablerx").innerHTML = '<i class="fa fa-upload"></i>&nbsp;&nbsp;' + pppoe_monitor_router_formatBytes(rxData);
         },
         error: function(xhr, textStatus, errorThrown) {
             console.error("Status: " + textStatus);
