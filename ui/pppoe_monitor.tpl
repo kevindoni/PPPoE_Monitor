@@ -233,7 +233,6 @@
                 </ul>
             </form>
             <div class="panel panel-default">
-                <div class="panel-heading">PPPoE Monitor<button class="btn btn-info pull-right pro-feature-button" style="margin-top: -5px;">Fitur Pro</button></div>
                 <div class="table-responsive">
                     <div class="panel-body">
                         <table class="table table-striped" id="ppp-table">
@@ -498,7 +497,7 @@ function createChart() {
             },
             labels: {
                 formatter: function(value) {
-                    return pppoe_monitor_router_formatBytes(value);
+                    return formatBytes(value);
                 }
             }
         },
@@ -508,14 +507,14 @@ function createChart() {
             },
             y: {
                 formatter: function(value) {
-                    return pppoe_monitor_router_formatBytes(value) + 'ps';
+                    return formatBytes(value) + 'ps';
                 }
             }
         },
         dataLabels: {
             enabled: true,
             formatter: function(value) {
-                return pppoe_monitor_router_formatBytes(value);
+                return formatBytes(value);
             }
         }
     };
@@ -524,7 +523,7 @@ function createChart() {
     chart.render();
 }
 
-function pppoe_pppoe_monitor_router_formatBytes(bytes) {
+function formatBytes(bytes) {
     if (bytes === 0) {
         return '0 B';
     }
@@ -567,8 +566,8 @@ function updateTrafficValues() {
                 { name: 'Upload', data: chartData.rxData }
             ]);
 
-            document.getElementById("tabletx").innerHTML = '<i class="fa fa-download"></i>&nbsp;&nbsp;' + pppoe_monitor_router_formatBytes(txData);
-            document.getElementById("tablerx").innerHTML = '<i class="fa fa-upload"></i>&nbsp;&nbsp;' + pppoe_monitor_router_formatBytes(rxData);
+            document.getElementById("tabletx").innerHTML = '<i class="fa fa-download"></i>&nbsp;&nbsp;' + formatBytes(txData);
+            document.getElementById("tablerx").innerHTML = '<i class="fa fa-upload"></i>&nbsp;&nbsp;' + formatBytes(rxData);
         },
         error: function(xhr, textStatus, errorThrown) {
             console.error("Status: " + textStatus);
