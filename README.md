@@ -1,6 +1,3 @@
-## If something goes wrong, it is your own responsibility, don't forget to backup before something bad happens
-
-
 # PPPoE Monitor Detail and Reconnect
 
  PPPoE Monitor Detail and Reconnect User Active Mikrotik For PhpNuxBill
@@ -13,6 +10,14 @@ https://github.com/kevindoni/PPPoE_Monitor/assets/22675011/e66e6ae6-ea83-492f-a6
 
 ![chrome-capture-2024-6-19 (1)](https://github.com/kevindoni/PPPoE_Monitor/assets/22675011/094c4a7f-3cbb-4e4d-967b-18ced6603c4a)
 ![chrome-capture-2024-6-19](https://github.com/kevindoni/PPPoE_Monitor/assets/22675011/aad49b18-9ee1-4ba2-97be-069c7e1b585e)
+
+
+# NEW UPDATE 
+- Search
+- Add Usage Daily
+- Add Multi Routers
+![image](https://github.com/kevindoni/PPPoE_Monitor/assets/22675011/2e484d8d-bb90-4a80-9eab-790b79eb6251)
+![image](https://github.com/kevindoni/PPPoE_Monitor/assets/22675011/bca89d46-3bd8-42e6-8456-482ad6d45c2a)
 
 
 ## Special Thanks
