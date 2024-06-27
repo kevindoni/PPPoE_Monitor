@@ -123,25 +123,27 @@ function pppoe_monitor_router_get_ppp_online_users()
     echo json_encode($userList);
 }
 
-function pppoe_monitor_router_delete_ppp_user()
-{
-    global $routes;
-    $router = $routes['2'];
-    $id = $_POST['id']; // Ambil .id dari POST data
+if (!function_exists('pppoe_monitor_router_delete_ppp_user')) {
+    function pppoe_monitor_router_delete_ppp_user()
+    {
+        global $routes;
+        $router = $routes['2'];
+        $id = $_POST['id']; // Ambil .id dari POST data
 
-    $mikrotik = ORM::for_table('tbl_routers')->where('enabled', '1')->find_one($router);
-    $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
-    
-    try {
-        $request = new RouterOS\Request('/ppp/active/remove');
-        $request->setArgument('.id', $id); // Gunakan .id yang sesuai
-        $client->sendSync($request);
+        $mikrotik = ORM::for_table('tbl_routers')->where('enabled', '1')->find_one($router);
+        $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
         
-        header('Content-Type: application/json');
-        echo json_encode(['success' => true, 'message' => 'PPPoE user successfully deleted.']);
-    } catch (Exception $e) {
-        header('Content-Type: application/json');
-        echo json_encode(['success' => false, 'message' => 'Failed to delete PPPoE user: ' . $e->getMessage()]);
+        try {
+            $request = new RouterOS\Request('/ppp/active/remove');
+            $request->setArgument('.id', $id); // Gunakan .id yang sesuai
+            $client->sendSync($request);
+            
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true, 'message' => 'PPPoE user successfully deleted.']);
+        } catch (Exception $e) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Failed to delete PPPoE user: ' . $e->getMessage()]);
+        }
     }
 }
 
@@ -228,34 +230,68 @@ function pppoe_monitor_router_online()
     return $pppoeInterfaces;
 }
 
-function pppoe_monitor_router_set_rate_limit()
+// ======================================================================
+// NEW FUNCTIONS:
+
+// Fungsi untuk menghitung total data yang digunakan per harinya
+function pppoe_monitor_router_daily_data_usage()
 {
     global $routes;
     $router = $routes['2'];
-    $username = $_POST['username']; // Get the username from POST data
-    $rate_limit = $_POST['rate_limit']; // Get the rate limit from POST data
-
     $mikrotik = ORM::for_table('tbl_routers')->where('enabled', '1')->find_one($router);
     $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
+    
+    // Ambil semua pengguna aktif PPPoE
+    $pppUsers = $client->sendSync(new RouterOS\Request('/ppp/active/print'));
+    $interfaceTraffic = $client->sendSync(new RouterOS\Request('/interface/print'));
 
-    try {
-        // Find the PPPoE user
-        $pppUsers = $client->sendSync(new RouterOS\Request('/ppp/secret/print', ['?name' => $username]));
-        if (empty($pppUsers)) {
-            throw new Exception('PPPoE user not found');
+    // Array untuk menyimpan data penggunaan harian
+    $daily_usage = [];
+
+    // Looping untuk setiap pengguna PPPoE
+    foreach ($pppUsers as $pppUser) {
+        $username = $pppUser->getProperty('name');
+        $interfaceName = "<pppoe-$username>"; // Nama interface sesuai format PPPoE
+
+        // Ambil data traffic untuk interface ini
+        $interfaceData = [];
+        foreach ($interfaceTraffic as $interface) {
+            $name = $interface->getProperty('name');
+            if ($name === $interfaceName) {
+                $interfaceData = [
+                    'txBytes' => intval($interface->getProperty('tx-byte')),
+                    'rxBytes' => intval($interface->getProperty('rx-byte'))
+                ];
+                break;
+            }
         }
-        $pppUser = $pppUsers[0];
 
-        // Set the rate limit
-        $request = new RouterOS\Request('/ppp/secret/set');
-        $request->setArgument('.id', $pppUser->getProperty('.id'));
-        $request->setArgument('rate-limit', $rate_limit);
-        $client->sendSync($request);
+        // Hitung total penggunaan harian
+        $txBytes = $interfaceData['txBytes'] ?? 0;
+        $rxBytes = $interfaceData['rxBytes'] ?? 0;
+        $totalDataMB = ($txBytes + $rxBytes) / (1024 * 1024); // Konversi ke MB
 
-        header('Content-Type: application/json');
-        echo json_encode(['success' => true, 'message' => 'Rate limit successfully set.']);
-    } catch (Exception $e) {
-        header('Content-Type: application/json');
-        echo json_encode(['success' => false, 'message' => 'Failed to set rate limit: ' . $e->getMessage()]);
+        // Ambil tanggal dari waktu saat ini
+        $date = date('Y-m-d', time());
+
+        // Jika belum ada data untuk tanggal ini, inisialisasi
+        if (!isset($daily_usage[$date])) {
+            $daily_usage[$date] = [
+                'total' => 0,
+                'users' => []
+            ];
+        }
+
+        // Tambahkan penggunaan harian untuk pengguna ini
+        $daily_usage[$date]['total'] += $totalDataMB;
+        $daily_usage[$date]['users'][] = [
+            'username' => $username,
+            'tx' => pppoe_monitor_router_formatBytes($txBytes),
+            'rx' => pppoe_monitor_router_formatBytes($rxBytes),
+            'total' => pppoe_monitor_router_formatBytes($txBytes + $rxBytes)
+        ];
     }
+
+    header('Content-Type: application/json');
+    echo json_encode($daily_usage); // $daily_usage adalah array yang berisi data harian dalam format yang sesuai
 }
