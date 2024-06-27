@@ -1,15 +1,13 @@
 {include file="sections/header.tpl"}
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.7.1/css/buttons.dataTables.min.css">
 <script src="https://cdn.datatables.net/buttons/1.7.1/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/1.7.1/css/buttons.dataTables.min.css"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
 
@@ -218,10 +216,37 @@
       vertical-align: middle;
       text-align: center;
   }
+  .advanced-search-container {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    }
+    .form-inline .form-group {
+        margin-right: 10px;
+    }
+    .dataTables_filter {
+        display: none;
+    }
+    @media (max-width: 768px) {
+        .panel-default {
+            padding: 10px;
+            margin: 0;
+        }
+        .panel-heading {
+            padding: 5px 15px;
+        }
+        .panel-body {
+            padding: 5px 10px;
+        }
+    .table th, .table td {
+        font-size: 15px; /* Mengurangi ukuran font pada tabel */
+    }
+}
 </style>
 <div class="container">
     <div class="row">
-        <div class="col-sm-12 col-md-12">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
             <!-- Form dan navigasi tabs -->
             <form class="form-horizontal" method="post" role="form" action="{$_url}plugin/pppoe_monitor_router_menu">
                 <ul class="nav nav-tabs">
@@ -232,6 +257,22 @@
                     {/foreach}
                 </ul>
             </form>
+            <div class="advanced-search-container">
+                <form id="advancedSearchForm" class="form-inline">
+                    <div class="form-group">
+                        <label for="searchUsername">Username:</label>
+                        <input type="text" class="form-control" id="searchUsername" placeholder="Enter username">
+                    </div>
+                    <div class="form-group">
+                        <label for="searchStatus">Status:</label>
+                        <select class="form-control" id="searchStatus">
+                            <option value="">Any</option>
+                            <option value="Connected">Connected</option>
+                            <option value="Disconnected">Disconnected</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
             <div class="panel panel-default">
                 <div class="table-responsive">
                     <div class="panel-body">
@@ -282,6 +323,7 @@
             </table>
           </div>
           <div id="chart" class="mt-3"></div>
+          <div id="dailyChart" class="mt-3"></div>
         </div>
       </div>
     </div>
@@ -336,11 +378,10 @@ $j(document).ready(function() {
             {
                 data: null,
                 render: function(data, type, row) {
-
                 return '<div class="action-icons" style="display: flex; align-items: center;">' +
-                      '<i class="fa fa-area-chart view-details" style="color: blue; cursor: pointer;" title="View Trafik" data-username="' + row.username + '" data-id="' + row.id + '"></i> ' +
-                      '<i class="fa fa-retweet reconnect-button" style="color: red;cursor: pointer;" title="Reconnect" data-username="' + row.username + '" data-id="' + row.id + '"></i>' +
-                      '</div>';
+                    '<i class="fa fa-area-chart view-details" style="color: blue; cursor: pointer;" title="View Traffic" data-username="' + row.username + '" data-id="' + row.id + '"></i> ' +
+                    '<i class="fa fa-retweet reconnect-button" style="color: red; cursor: pointer;" title="Reconnect" data-username="' + row.username + '" data-id="' + row.id + '"></i> ' +
+                    '</div>';
                 }
             }
         ],
@@ -350,9 +391,8 @@ $j(document).ready(function() {
         dom: 'Bfrtip',
         buttons: ['reset', 'pageLength'],
         paging: true,
-        searching: true,
-        ordering: true,
         info: true,
+        searching: true, // Menonaktifkan pencarian
         ajax: {
             url: '{$_url}plugin/pppoe_monitor_router_get_ppp_online_users/{$router}',
             dataSrc: ''
@@ -378,34 +418,37 @@ $j(document).ready(function() {
     });
 
     // Function to handle view details
-    function viewDetails(id, username) {
-        $j('#modalUsername').text(username);
+function viewDetails(id, username) {
+    console.log("Viewing details for:", username);
+    $j('#modalUsername').text(username);
 
-        $j.ajax({
-            url: '{$_url}plugin/pppoe_monitor_router_get_ppp_online_users',
-            method: 'GET',
-            dataType: 'json',
-            success: function(response) {
-                var user = response.find(function(item) {
-                    return (item.username && item.username.toString().toLowerCase() === username.toString().toLowerCase());
-                });
+    $j.ajax({
+        url: '{$_url}plugin/pppoe_monitor_router_get_ppp_online_users',
+        method: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            var user = response.find(function(item) {
+                return (item.username && item.username.toString().toLowerCase() === username.toString().toLowerCase());
+            });
 
-                if (username !== null && user !== null && user.username !== null) {
-                    var interfaceValue = '<pppoe-' + user.username + '>';
-                    $j('#interface').val(interfaceValue);
-                    $j('#selectedInterface').text(interfaceValue);
-                    $j('#detailsModal').css('display', 'block');
-                    createChart();
-                } else {
-                    alert('User not found.');
-                }
-            },
-            error: function(xhr, textStatus, errorThrown) {
-                alert('Failed to retrieve user data.');
-                console.error('AJAX error:', textStatus, errorThrown);
+            if (username !== null && user !== null && user.username !== null) {
+                var interfaceValue = '<pppoe-' + user.username + '>';
+                $j('#interface').val(interfaceValue);
+                $j('#selectedInterface').text(interfaceValue);
+                $j('#detailsModal').css('display', 'block');
+                createChart();
+                createDailyChart(username); // Pass the username to createDailyChart
+            } else {
+                alert('User not found.');
             }
-        });
-    }
+        },
+        error: function(xhr, textStatus, errorThrown) {
+            alert('Failed to retrieve user data.');
+            console.error('AJAX error:', textStatus, errorThrown);
+        }
+    });
+}
+
 
     // Function to handle reconnect
     function reconnect(id, username) {
@@ -443,6 +486,26 @@ $j(document).ready(function() {
             $j('#detailsModal').css('display', 'none');
         }
     });
+
+    // Handle advanced search form submission
+    $j(document).ready(function() {
+        $j('#advancedSearchForm').on('submit', function(e) {
+            e.preventDefault(); // Mencegah pengiriman form secara default
+
+            // Mendapatkan nilai dari input
+            var username = $j('#searchUsername').val();
+            var status = $j('#searchStatus').val();
+
+            // Melakukan pencarian dan menggambar ulang tabel
+            table.column(1).search(username).draw(); // Kolom 1 untuk username
+            table.column(9).search(status).draw(); // Kolom 9 untuk status
+        });
+
+        // Menambahkan ikon search ke dalam tombol
+        var searchButton = $j('<button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>');
+        $j('#advancedSearchForm').append(searchButton);
+    });
+
 });
 
 var chart;
@@ -521,6 +584,197 @@ function createChart() {
 
     chart = new ApexCharts(document.querySelector("#chart"), options);
     chart.render();
+}
+
+var dailyChart; // Declare dailyChart variable globally
+
+function createDailyChart(username) {
+    var currentDate = new Date();
+    var startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getTime();
+    var endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getTime();
+
+    generateDailyData(username)
+        .then(dailyData => {
+            var dailyTotals = dailyData.download.map((item, index) => ({
+                x: item.x,
+                y: item.y + dailyData.upload[index].y
+            }));
+
+            if (dailyChart) {
+                dailyChart.destroy();
+            }
+
+            var options = {
+                chart: {
+                    height: 350,
+                    type: 'bar',
+                    animations: {
+                        enabled: true,
+                        easing: 'linear',
+                        speed: 800,
+                        animateGradually: {
+                            enabled: true,
+                            delay: 150
+                        },
+                        dynamicAnimation: {
+                            enabled: true,
+                            speed: 200
+                        }
+                    },
+                    toolbar: {
+                        show: true,
+                    }
+                },
+                plotOptions: {
+                    bar: {
+                        horizontal: false,
+                        columnWidth: '15%',
+                        endingShape: 'rounded'
+                    },
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                stroke: {
+                    show: true,
+                    width: 2,
+                    colors: ['transparent']
+                },
+                series: [{
+                    name: 'Download',
+                    data: dailyData.upload
+                }, {
+                    name: 'Upload',
+                    data: dailyData.download
+                }, {
+                    name: 'Daily Totals',
+                    data: dailyTotals
+                }],
+                xaxis: {
+                    type: 'datetime',
+                    min: startOfMonth,
+                    max: endOfMonth,
+                    labels: {
+                        formatter: function(value) {
+                            return new Date(value).toLocaleDateString();
+                        }
+                    }
+                },
+                yaxis: {
+                    title: {
+                        text: 'Total Usage'
+                    },
+                    labels: {
+                        formatter: function(value) {
+                            return formatBytesPerSecond(value);
+                        }
+                    }
+                },
+                fill: {
+                    opacity: 1
+                },
+                tooltip: {
+                    y: {
+                        formatter: function(val) {
+                            return formatBytes(val);
+                        }
+                    }
+                },
+                responsive: [
+                    {
+                        breakpoint: 480,
+                        options: {
+                            plotOptions: {
+                                bar: {
+                                    columnWidth: '100%'
+                                }
+                            }
+                        }
+                    }
+                ]
+            };
+
+            dailyChart = new ApexCharts(document.querySelector("#dailyChart"), options);
+            dailyChart.render();
+        })
+        .catch(error => {
+            console.error("Failed to fetch daily usage data:", error);
+        });
+}
+
+// ========================================== NEW FITUR ==========================================//
+function generateDailyData(username, startDate, endDate) {
+    return new Promise((resolve, reject) => {
+        $j.ajax({
+            url: '{$_url}plugin/pppoe_monitor_router_daily_data_usage/{$router}',
+            data: {
+                username: username,
+                start_date: startDate,
+                end_date: endDate
+            },
+            dataType: 'json',
+            success: function(data) {
+                console.log("Raw data from server for username", username, ":", data);
+
+                var dailyData = {
+                    download: [],
+                    upload: []
+                };
+                
+                // Iterate over dates in data and find the correct user data
+                for (var date in data) {
+                    var users = data[date].users;
+                    
+                    // Handle username as number case
+                    var userData = users.find(user => user.username === username || user.username == parseInt(username));
+                    
+                    if (userData) {
+                        var rxBytes = convertToBytes(userData.rx);
+                        var txBytes = convertToBytes(userData.tx);
+                        
+                        // Store data in dailyData based on date
+                        dailyData.download.push({ x: new Date(date).getTime(), y: rxBytes });
+                        dailyData.upload.push({ x: new Date(date).getTime(), y: txBytes });
+                    }
+                }
+
+                console.log("Filtered daily data for username", username, ":", dailyData);
+                resolve(dailyData);
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                console.error("AJAX Error in generateDailyData:", textStatus, errorThrown);
+                console.log("Status:", xhr.status);
+                console.log("Response Text:", xhr.responseText);
+                reject(errorThrown);
+            }
+        });
+    });
+}
+
+function convertToBytes(value) {
+    let [number, unit] = value.split(' ');
+    number = parseFloat(number);
+    switch (unit) {
+        case 'GB':
+            return number * 1024 * 1024 * 1024;
+        case 'MB':
+            return number * 1024 * 1024;
+        case 'KB':
+            return number * 1024;
+        default:
+            return number;
+    }
+}
+// ========================================== NEW FITUR ==========================================//
+function formatBytesPerSecond(bytes) {
+    if (bytes === 0) {
+        return '0 Bps';
+    }
+    var k = 1024;
+    var sizes = ['Bps', 'KBps', 'MBps', 'GBps', 'TBps', 'PBps', 'EBps', 'ZBps', 'YBps'];
+    var i = Math.floor(Math.log(bytes) / Math.log(k));
+    var formattedValue = parseFloat((bytes / Math.pow(k, i)).toFixed(2));
+    return formattedValue + ' ' + sizes[i];
 }
 
 function formatBytes(bytes) {
