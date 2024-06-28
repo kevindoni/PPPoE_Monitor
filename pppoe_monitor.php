@@ -123,29 +123,7 @@ function pppoe_monitor_router_get_ppp_online_users()
     echo json_encode($userList);
 }
 
-if (!function_exists('pppoe_monitor_router_delete_ppp_user')) {
-    function pppoe_monitor_router_delete_ppp_user()
-    {
-        global $routes;
-        $router = $routes['2'];
-        $id = $_POST['id']; // Ambil .id dari POST data
-
-        $mikrotik = ORM::for_table('tbl_routers')->where('enabled', '1')->find_one($router);
-        $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
-        
-        try {
-            $request = new RouterOS\Request('/ppp/active/remove');
-            $request->setArgument('.id', $id); // Gunakan .id yang sesuai
-            $client->sendSync($request);
-            
-            header('Content-Type: application/json');
-            echo json_encode(['success' => true, 'message' => 'PPPoE user successfully deleted.']);
-        } catch (Exception $e) {
-            header('Content-Type: application/json');
-            echo json_encode(['success' => false, 'message' => 'Failed to delete PPPoE user: ' . $e->getMessage()]);
-        }
-    }
-}
+// Fungsi untuk menghitung total data yang digunakan per harinya
 
 function pppoe_monitor_router_formatBytes($bytes, $precision = 2)
 {
@@ -292,6 +270,7 @@ function pppoe_monitor_router_daily_data_usage()
         ];
     }
 
+    // Kembalikan hasil dalam format JSON
     header('Content-Type: application/json');
     echo json_encode($daily_usage); // $daily_usage adalah array yang berisi data harian dalam format yang sesuai
 }
