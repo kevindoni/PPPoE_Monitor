@@ -1,11 +1,15 @@
 {include file="sections/header.tpl"}
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.7.1/css/buttons.dataTables.min.css">
+<script src="https://cdn.datatables.net/buttons/1.7.1/js/dataTables.buttons.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
-
 
 <style>
     .modal {
@@ -237,8 +241,28 @@
         }
     .table th, .table td {
         font-size: 15px; /* Mengurangi ukuran font pada tabel */
+        }
     }
-}
+    .traffic-icon {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 5px;
+        vertical-align: middle;
+    }
+    .traffic-icon-green {
+        background-color: green;
+    }
+    .traffic-icon-yellow {
+        background-color: yellow;
+    }
+    .traffic-icon-red {
+        background-color: red;
+    }
+    .text-left {
+    text-align: left !important;
+    }
 </style>
 <div class="container">
     <div class="row">
@@ -283,6 +307,7 @@
                                     <th>Caller ID</th>
                                     <th>Download</th>
                                     <th>Upload</th>
+                                    <th>Max Limit</th>
                                     <th>Total Usage</th>
                                     <th>Status</th>
                                     <th>Actions</th>
@@ -351,13 +376,26 @@ $j(document).ready(function() {
         responsive: true,
         columns: [
             { data: 'id', visible: false },
-            { data: 'username' },
+            {
+                data: 'username',
+                className: 'text-left',
+                render: function(data, type, row) {
+                    return '<div style="width: 150px;"><i class="traffic-icon traffic-icon-green"></i> ' + data + '</div>';
+                }
+            },
             { data: 'address' },
             { data: 'uptime' },
             { data: 'service' },
             { data: 'caller_id' },
             { data: 'tx', className: 'dataSize' },
             { data: 'rx', className: 'dataSize' },
+            {
+                data: 'max_limit',
+                className: 'dataSize',
+                render: function(data, type, row) {
+                    return getMaxLimit(row);
+                }
+            },
             { data: 'total', className: 'dataSize' },
             {
                 data: 'status',
@@ -374,10 +412,10 @@ $j(document).ready(function() {
             {
                 data: null,
                 render: function(data, type, row) {
-                return '<div class="action-icons" style="display: flex; align-items: center;">' +
-                    '<i class="fa fa-area-chart view-details" style="color: blue; cursor: pointer;" title="View Traffic" data-username="' + row.username + '" data-id="' + row.id + '"></i> ' +
-                    '<i class="fa fa-retweet reconnect-button" style="color: red; cursor: pointer;" title="Reconnect" data-username="' + row.username + '" data-id="' + row.id + '"></i> ' +
-                    '</div>';
+                    return '<div class="action-icons" style="display: flex; align-items: center;">' +
+                        '<i class="fa fa-area-chart view-details" style="color: blue; cursor: pointer;" title="View Traffic" data-username="' + row.username + '" data-id="' + row.id + '"></i> ' +
+                        '<i class="fa fa-retweet reconnect-button" style="color: red; cursor: pointer;" title="Reconnect" data-username="' + row.username + '" data-id="' + row.id + '"></i> ' +
+                        '</div>';
                 }
             }
         ],
@@ -388,13 +426,23 @@ $j(document).ready(function() {
         buttons: ['reset', 'pageLength'],
         paging: true,
         info: true,
-        searching: true, // Menonaktifkan pencarian
+        searching: true,
         ajax: {
-            url: '{$_url}plugin/pppoe_monitor_router_get_ppp_online_users/{$router}',
+            url: '{$_url}plugin/pppoe_monitor_router_get_combined_users/{$router}',
             dataSrc: ''
         }
     });
 
+
+    // Fungsi untuk mendapatkan batas maksimum
+    function getMaxLimit(data) {
+        if (data.hasOwnProperty('max_limit')) {
+            return data.max_limit.toString();
+        } else {
+            return 'N/A';
+        }
+    }
+    
     // Handle view details icon clicks
     $j('#ppp-table tbody').on('click', '.view-details', function(e) {
         e.preventDefault();
@@ -413,64 +461,65 @@ $j(document).ready(function() {
         reconnect(id, username);
     });
 
-
-// Function to handle view details
+    // Function to handle view details
     function viewDetails(id, username) {
-        console.log("Viewing details for:", username);
-        $j('#modalUsername').text(username);
+    console.log("Viewing details for:", username);
+    $j('#modalUsername').text(username);
 
-        $j.ajax({
-            url: '{$_url}plugin/pppoe_monitor_router_get_ppp_online_users',
-            method: 'GET',
-            dataType: 'json',
+    $j.ajax({
+        url: '{$_url}plugin/pppoe_monitor_router_get_combined_users',
+        method: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            var user = response.find(function(item) {
+                return (item.username && item.username.toString().toLowerCase() === username.toString().toLowerCase());
+            });
+
+            if (username !== null && user !== null && user.username !== null) {
+                var interfaceValue = '<pppoe-' + user.username + '>';
+                $j('#interface').val(interfaceValue);
+                $j('#selectedInterface').text(interfaceValue);
+                $j('#detailsModal').css('display', 'block');
+                createChart();
+                createDailyChart(username); // Pass the username to createDailyChart
+            } else {
+                alert('User not found.');
+            }
+        },
+        error: function(xhr, textStatus, errorThrown) {
+            alert('Failed to retrieve user data.');
+            console.error('AJAX error:', textStatus, errorThrown);
+        }
+    });
+    }
+
+
+
+// Function to handle reconnect
+function reconnect(id, username) {
+    if (confirm('Are you sure you want to disconnect user ' + username + '?')) {
+        $.ajax({
+            url: '{$_url}plugin/pppoe_monitor_router_delete_ppp_user/{$router}', // Perbaiki URL AJAX
+            method: 'POST',
+            data: { id: id, username: username },
             success: function(response) {
-                var user = response.find(function(item) {
-                    return (item.username && item.username.toString().toLowerCase() === username.toString().toLowerCase());
-                });
-
-                if (user) {
-                    var interfaceValue = '<pppoe-' + user.username + '>';
-                    $j('#interface').val(interfaceValue);
-                    $j('#selectedInterface').text(interfaceValue);
-                    $j('#detailsModal').css('display', 'block');
-                    createChart();
-                    createDailyChart(username);
+                if (response.success) {
+                    alert('User ' + username + ' has been disconnected.');
+                    setTimeout(function() {
+                        table.ajax.reload();
+                    }, 2000);
                 } else {
-                    alert('User not found.');
+                    alert('Failed to disconnect user ' + username + ': ' + (response.message || 'Unknown error'));
                 }
             },
             error: function(xhr, textStatus, errorThrown) {
-                alert('Failed to retrieve user data.');
+                alert('Failed to disconnect user ' + username + ': ' + (errorThrown || 'Unknown error'));
                 console.error('AJAX error:', textStatus, errorThrown);
             }
         });
     }
+}
 
-
-    // Function to handle reconnect
-    function reconnect(id, username) {
-        if (confirm('Are you sure you want to disconnect user ' + username + '?')) {
-            $j.ajax({
-                url: '{$_url}plugin/pppoe_monitor_router_delete_ppp_user/{$router}',
-                method: 'POST',
-                data: { id: id, username: username },
-                success: function(response) {
-                    if (response.success) {
-                        alert('User ' + username + ' has been disconnected.');
-                        setTimeout(function() {
-                            table.ajax.reload();
-                        }, 2000);
-                    } else {
-                        alert('Failed to disconnect user ' + username + ': ' + response.message);
-                    }
-                },
-                error: function(xhr, textStatus, errorThrown) {
-                    alert('Failed to disconnect user ' + username + '.');
-                    console.error('AJAX error:', textStatus, errorThrown);
-                }
-            });
-        }
-    }
 
     // Close modal on click of close button
     $j('.close').click(function() {
@@ -505,161 +554,93 @@ $j(document).ready(function() {
 
 });
 
-    var chart;
-    var chartData = {
-        txData: [],
-        rxData: []
-    };
+var chart;
+var chartData = {
+    txData: [],
+    rxData: []
+};
 
-    function createChart() {
-        var options = {
-            chart: {
-                height: 350,
-                type: 'area',
-                animations: {
-                    enabled: true,
-                    easing: 'linear',
-                    speed: 200,
-                    animateGradually: {
-                        enabled: true,
-                        delay: 150
-                    },
-                    dynamicAnimation: {
-                        enabled: true,
-                        speed: 200
-                    }
-                },
-                events: {
-                    mounted: function() {
-                        updateTrafficValues();
-                        setInterval(updateTrafficValues, 3000);
-                    }
-                }
-            },
-            stroke: {
-                curve: 'smooth'
-            },
-            series: [
-                { name: 'Download', data: chartData.txData },
-                { name: 'Upload', data: chartData.rxData }
-            ],
-            xaxis: {
-                type: 'datetime',
-                labels: {
-                    formatter: function(value) {
-                        return new Date(value).toLocaleTimeString();
-                    }
-                }
-            },
-            yaxis: {
-                title: {
-                    text: 'Trafik Real Time'
-                },
-                labels: {
-                    formatter: function(value) {
-                        return formatBytes(value);
-                    }
-                }
-            },
-            tooltip: {
-                x: {
-                    format: 'HH:mm:ss'
-                },
-                y: {
-                    formatter: function(value) {
-                        return formatBytes(value) + 'ps';
-                    }
-                }
-            },
-            dataLabels: {
+function createChart() {
+    var options = {
+        chart: {
+            height: 350,
+            type: 'area',
+            animations: {
                 enabled: true,
+                easing: 'linear',
+                speed: 200,
+                animateGradually: {
+                    enabled: true,
+                    delay: 150
+                },
+                dynamicAnimation: {
+                    enabled: true,
+                    speed: 200
+                }
+            },
+            events: {
+                mounted: function() {
+                    updateTrafficValues();
+                    setInterval(updateTrafficValues, 3000);
+                }
+            }
+        },
+        stroke: {
+            curve: 'smooth'
+        },
+        series: [
+            { name: 'Download', data: chartData.txData },
+            { name: 'Upload', data: chartData.rxData }
+        ],
+        xaxis: {
+            type: 'datetime',
+            labels: {
+                formatter: function(value) {
+                    return new Date(value).toLocaleTimeString();
+                }
+            }
+        },
+        yaxis: {
+            title: {
+                text: 'Trafik Real Time'
+            },
+            labels: {
                 formatter: function(value) {
                     return formatBytes(value);
                 }
             }
-        };
-
-        chart = new ApexCharts(document.querySelector("#chart"), options);
-        chart.render();
-    }
-// ========================GRAFIK BAR HARIAN======================================//
-
-var dailyChart; // Declare dailyChart variable globally
-var startOfPreviousDay, endOfPreviousDay; // Global variables to store start and end times of the previous day
-var startOfMonth, endOfMonth; // Declare startOfMonth and endOfMonth globally
-
-// Function to retrieve data from MikroTik graphs/iface
-function retrieveDataFromMikroTik(username, startDate, endDate) {
-    // Example: Using AJAX to fetch data from your PHP endpoint
-    return new Promise((resolve, reject) => {
-        $.ajax({
-            url: '{$_url}plugin/pppoe_monitor_router_daily_data_usage/{$router}',
-            data: {
-                username: username,
-                start_date: new Date(startDate).toISOString(),
-                end_date: new Date(endDate).toISOString()
+        },
+        tooltip: {
+            x: {
+                format: 'HH:mm:ss'
             },
-            dataType: 'json',
-            success: function(data) {
-                resolve(data); // Assume data is already in the expected format
-            },
-            error: function(xhr, textStatus, errorThrown) {
-                reject(errorThrown);
+            y: {
+                formatter: function(value) {
+                    return formatBytes(value) + 'ps';
+                }
             }
-        });
-    });
-}
-
-// Function to process MikroTik data and convert it to daily data format
-function processMikroTikData(mikrotikData) {
-    var dailyData = {
-        download: [],
-        upload: []
+        },
+        dataLabels: {
+            enabled: true,
+            formatter: function(value) {
+                return formatBytes(value);
+            }
+        }
     };
 
-    // Process mikrotikData and push into dailyData.download and dailyData.upload arrays
-    mikrotikData.forEach(entry => {
-        var timestamp = new Date(entry.timestamp).getTime(); // Convert timestamp to milliseconds
-        var download = entry.download; // Assume download data in bytes
-        var upload = entry.upload; // Assume upload data in bytes
-
-        // Push data into dailyData arrays
-        dailyData.download.push({ x: timestamp, y: download });
-        dailyData.upload.push({ x: timestamp, y: upload });
-    });
-
-    return dailyData;
+    chart = new ApexCharts(document.querySelector("#chart"), options);
+    chart.render();
 }
 
-// Function to generate daily data for a specific username within a date range
-function generateDailyData(username, startDate, endDate) {
-    return new Promise((resolve, reject) => {
-        retrieveDataFromMikroTik(username, startDate, endDate)
-            .then(mikrotikData => {
-                var dailyData = processMikroTikData(mikrotikData);
-                historicalDailyData.push(dailyData); // Store in historical data array
-                resolve(dailyData); // Resolve promise with processed daily data
-            })
-            .catch(error => {
-                console.error('Error retrieving data from MikroTik:', error);
-                reject(error);
-            });
-    });
-}
+var dailyChart; // Declare dailyChart variable globally
 
-// Function to create daily chart
 function createDailyChart(username) {
-    // Set initial start and end dates for the current month
     var currentDate = new Date();
-    startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getTime();
-    endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getTime();
+    var startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getTime();
+    var endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getTime();
 
-    // Call generateDailyData with initial start and end dates
-    generateDailyData(username, startOfMonth, endOfMonth)
+    generateDailyData(username)
         .then(dailyData => {
-            startOfPreviousDay = startOfMonth;
-            endOfPreviousDay = endOfMonth;
-
             var dailyTotals = dailyData.download.map((item, index) => ({
                 x: item.x,
                 y: item.y + dailyData.upload[index].y
@@ -740,240 +721,216 @@ function createDailyChart(username) {
                 },
                 tooltip: {
                     y: {
-                        formatter: function(value) {
-                            return formatBytesPerSecond(value);
+                        formatter: function(val) {
+                            return formatBytes(val);
                         }
                     }
                 },
-                responsive: [{
-                    breakpoint: 480,
-                    options: {
-                        plotOptions: {
-                            bar: {
-                                columnWidth: '100%'
+                responsive: [
+                    {
+                        breakpoint: 480,
+                        options: {
+                            plotOptions: {
+                                bar: {
+                                    columnWidth: '100%'
+                                }
                             }
                         }
                     }
-                }]
+                ]
             };
 
             dailyChart = new ApexCharts(document.querySelector("#dailyChart"), options);
             dailyChart.render();
-
-            // Update dailyChart every day at 00:00:00
-            setInterval(function() {
-                generateDailyData(username, startOfMonth, endOfMonth).then(function(dailyData) {
-                    dailyTotals = dailyData.download.map((item, index) => ({
-                        x: item.x,
-                        y: item.y + dailyData.upload[index].y
-                    }));
-                    dailyChart.updateSeries([{
-                        name: 'Download',
-                        data: dailyData.download
-                    }, {
-                        name: 'Upload',
-                        data: dailyData.upload
-                    }, {
-                        name: 'Daily Totals',
-                        data: dailyTotals
-                    }]);
-                });
-            }, 86400000); // 86400000 ms = 24 hours
-
-            // Update startOfMonth and endOfMonth every day at 00:00:00
-            setInterval(updateMonthRange, 86400000); // 86400000 ms = 24 hours
         })
         .catch(error => {
             console.error("Failed to fetch daily usage data:", error);
         });
 }
 
-// Function to update startOfMonth and endOfMonth every day at 00:00:00
-function updateMonthRange() {
-    var currentDate = new Date();
-    startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getTime();
-    endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getTime();
-}
-
 // ========================================== NEW FITUR ==========================================//
-    // Function to generate daily data for a specific username within a date range
-    function generateDailyData(username, startDate, endDate) {
-        return new Promise((resolve, reject) => {
-            // Prepare AJAX request
-            $j.ajax({
-                url: '{$_url}plugin/pppoe_monitor_router_daily_data_usage/{$router}',
-                data: {
-                    username: username,
-                    start_date: new Date(startDate).toISOString(),
-                    end_date: new Date(endDate).toISOString()
-                },
-                dataType: 'json',
-                success: function(data) {
-                    var dailyData = {
-                        download: [],
-                        upload: []
-                    };
-
-                    Object.keys(data).forEach(date => {
-                        var users = data[date].users;
-
-                        // Handle username as number case
-                        var userData = users.find(user => user.username === username || user.username == parseInt(username));
-
-                        if (userData) {
-                            var rxBytes = convertToBytes(userData.rx);
-                            var txBytes = convertToBytes(userData.tx);
-
-                            // Store data in dailyData based on date
-                            dailyData.download.push({ x: new Date(date).getTime(), y: rxBytes });
-                            dailyData.upload.push({ x: new Date(date).getTime(), y: txBytes });
-                        }
-                    });
-
-                    console.log("Filtered daily data for username", username, ":", dailyData);
-                    resolve(dailyData);
-                },
-                error: function(xhr, textStatus, errorThrown) {
-                    console.error("AJAX Error in generateDailyData:", textStatus, errorThrown);
-                    console.log("Status:", xhr.status);
-                    console.log("Response Text:", xhr.responseText);
-                    reject(errorThrown);
-                }
-            });
-        });
-    }
-
-
-    // Function to convert usage string to bytes
-    function convertToBytes(usage) {
-        var unit = usage.slice(-2).toUpperCase(); // Get unit (GB or MB)
-        var value = parseFloat(usage.slice(0, -3)); // Get value without unit
-
-        switch (unit) {
-            case 'GB':
-                return value * 1024 * 1024 * 1024;
-            case 'MB':
-                return value * 1024 * 1024;
-            default:
-                return 0;
-        }
-    }
-
-
-
-    function renderHistoricalDailyChart() {
-    // Combine historical daily data for rendering
-    var combinedData = historicalDailyData.reduce((acc, data) => {
-        acc.download.push(...data.download);
-        acc.upload.push(...data.upload);
-        return acc;
-    }, { download: [], upload: [] });
-
-    if (dailyChart) {
-        // Update existing chart with combined data
-        dailyChart.updateSeries([
-            { name: 'Download', data: combinedData.download },
-            { name: 'Upload', data: combinedData.upload }
-        ]);
-    } else {
-        // Create a new chart instance with combined data
-        dailyChart = new ApexCharts(document.querySelector("#dailyChart"), {
-            chart: {
-                type: 'line',
-                height: 350,
-                stacked: false,
+function generateDailyData(username, startDate, endDate) {
+    return new Promise((resolve, reject) => {
+        $j.ajax({
+            url: '{$_url}plugin/pppoe_monitor_router_daily_data_usage/{$router}',
+            data: {
+                username: username,
+                start_date: startDate,
+                end_date: endDate
             },
-            series: [
-                { name: 'Download', data: combinedData.download },
-                { name: 'Upload', data: combinedData.upload }
-            ],
-            xaxis: {
-                type: 'datetime',
-                categories: combinedData.categories  // Assuming you have categories for x-axis
-            },
-            tooltip: {
-                shared: false,
-                intersect: true,
-                y: {
-                    formatter: function (val) {
-                        return val.toFixed(2) + " GB";
+            dataType: 'json',
+            success: function(data) {
+                console.log("Raw data from server for username", username, ":", data);
+
+                var dailyData = {
+                    download: [],
+                    upload: []
+                };
+                
+                // Iterate over dates in data and find the correct user data
+                for (var date in data) {
+                    var users = data[date].users;
+                    
+                    // Handle username as number case
+                    var userData = users.find(user => user.username === username || user.username == parseInt(username));
+                    
+                    if (userData) {
+                        var rxBytes = convertToBytes(userData.rx);
+                        var txBytes = convertToBytes(userData.tx);
+                        
+                        // Store data in dailyData based on date
+                        dailyData.download.push({ x: new Date(date).getTime(), y: rxBytes });
+                        dailyData.upload.push({ x: new Date(date).getTime(), y: txBytes });
                     }
                 }
+
+                console.log("Filtered daily data for username", username, ":", dailyData);
+                resolve(dailyData);
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                console.error("AJAX Error in generateDailyData:", textStatus, errorThrown);
+                console.log("Status:", xhr.status);
+                console.log("Response Text:", xhr.responseText);
+                reject(errorThrown);
             }
         });
+    });
+}
 
-        // Render the new chart instance
-        dailyChart.render();
+function convertToBytes(value) {
+    let [number, unit] = value.split(' ');
+    number = parseFloat(number);
+    switch (unit) {
+        case 'GB':
+            return number * 1024 * 1024 * 1024;
+        case 'MB':
+            return number * 1024 * 1024;
+        case 'KB':
+            return number * 1024;
+        default:
+            return number;
     }
 }
 // ========================================== NEW FITUR ==========================================//
+function formatBytesPerSecond(bytes) {
+    if (bytes === 0) {
+        return '0 Bps';
+    }
+    var k = 1024;
+    var sizes = ['Bps', 'KBps', 'MBps', 'GBps', 'TBps', 'PBps', 'EBps', 'ZBps', 'YBps'];
+    var i = Math.floor(Math.log(bytes) / Math.log(k));
+    var formattedValue = parseFloat((bytes / Math.pow(k, i)).toFixed(2));
+    return formattedValue + ' ' + sizes[i];
+}
 
-    // Function to format bytes per second
-    function formatBytesPerSecond(bytes) {
-        if (bytes === 0) {
-            return '0 Bps';
-        }
-        var k = 1024;
-        var sizes = ['Bps', 'KBps', 'MBps', 'GBps', 'TBps', 'PBps', 'EBps', 'ZBps', 'YBps'];
-        var i = Math.floor(Math.log(bytes) / Math.log(k));
-        var formattedValue = parseFloat((bytes / Math.pow(k, i)).toFixed(2));
-        return formattedValue + ' ' + sizes[i];
+// Fungsi untuk mengubah ukuran dalam byte menjadi format yang lebih mudah dibaca
+function formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
+// Function to update traffic values and icons
+function updateTrafficValues() {
+    var username = $j('#modalUsername').text().trim();
+    var interfaceValue = $j('#interface').val();
+
+    if (!username || !interfaceValue) {
+        console.error("Username or interface is undefined or empty.");
+        return;
     }
 
-    // Function to format bytes
-    function formatBytes(bytes) {
-        if (bytes === 0) {
-            return '0 B';
-        }
-        var k = 1024;
-        var sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-        var i = Math.floor(Math.log(bytes) / Math.log(k));
-        var formattedValue = parseFloat((bytes / Math.pow(k, i)).toFixed(2));
-        return formattedValue + ' ' + sizes[i];
-    }
+    $j.ajax({
+        url: '{$_url}plugin/pppoe_monitor_router_traffic/{$router}',
+        dataType: 'json',
+        data: { username: username, interface: interfaceValue },
+        success: function(data) {
+            var timestamp = new Date().getTime();
+            var txData = parseInt(data.rows.tx[0]) || 0;
+            var rxData = parseInt(data.rows.rx[0]) || 0;
 
-    // Function to update traffic values
-    function updateTrafficValues() {
-        var username = $j('#modalUsername').text().trim();
-        var interfaceValue = $j('#interface').val();
+            // Log data tx dan rx untuk debugging
+            console.log('txData:', txData, 'rxData:', rxData);
 
-        if (!username || !interfaceValue) {
-            console.error("Username or interface is undefined or empty.");
-            return;
-        }
+            // Update chart data
+            chartData.txData.push({ x: timestamp, y: txData });
+            chartData.rxData.push({ x: timestamp, y: rxData });
 
-        $j.ajax({
-            url: '{$_url}plugin/pppoe_monitor_router_traffic/{$router}',
-            dataType: 'json',
-            data: { username: username, interface: interfaceValue },
-            success: function(data) {
-                var timestamp = new Date().getTime();
-                var txData = parseInt(data.rows.tx[0]) || 0;
-                var rxData = parseInt(data.rows.rx[0]) || 0;
-
-                chartData.txData.push({ x: timestamp, y: txData });
-                chartData.rxData.push({ x: timestamp, y: rxData });
-
-                var maxDataPoints = 10;
-                if (chartData.txData.length > maxDataPoints) {
-                    chartData.txData.shift();
-                    chartData.rxData.shift();
-                }
-
-                chart.updateSeries([
-                    { name: 'Download', data: chartData.txData },
-                    { name: 'Upload', data: chartData.rxData }
-                ]);
-
-                document.getElementById("tabletx").innerHTML = '<i class="fa fa-download"></i>&nbsp;&nbsp;' + formatBytes(txData);
-                document.getElementById("tablerx").innerHTML = '<i class="fa fa-upload"></i>&nbsp;&nbsp;' + formatBytes(rxData);
-            },
-            error: function(xhr, textStatus, errorThrown) {
-                console.error("Status: " + textStatus);
-                console.error("Error: " + errorThrown);
+            var maxDataPoints = 10;
+            if (chartData.txData.length > maxDataPoints) {
+                chartData.txData.shift();
+                chartData.rxData.shift();
             }
-        });
-    }
+
+            // Update series on the chart
+            chart.updateSeries([
+                { name: 'Download', data: chartData.txData },
+                { name: 'Upload', data: chartData.rxData }
+            ]);
+
+            // Find the icon element for the specific user based on username
+            var userRow = $j('#ppp-table tbody tr').filter(function() {
+                return $j(this).find('td').eq(1).text().trim() === username;
+            });
+
+            var iconElement = userRow.find('.traffic-icon');
+
+            // Define thresholds for traffic levels
+            var thresholdHigh = 2000; // Adjust these values as needed
+            var thresholdMedium = 1500; // Adjust these values as needed
+
+            // Adjust icon color based on traffic levels
+            if (txData > thresholdHigh || rxData > thresholdHigh) {
+                iconElement.removeClass('traffic-icon-green traffic-icon-yellow').addClass('traffic-icon-red');
+            } else if (txData > thresholdMedium || rxData > thresholdMedium) {
+                iconElement.removeClass('traffic-icon-green traffic-icon-red').addClass('traffic-icon-yellow');
+            } else {
+                iconElement.removeClass('traffic-icon-yellow traffic-icon-red').addClass('traffic-icon-green');
+            }
+        },
+        error: function(xhr, textStatus, errorThrown) {
+            console.error("Status: " + textStatus);
+            console.error("Error: " + errorThrown);
+        }
+    });
+}
+
+
+
+// Function to update traffic icons based on table data
+function updateTrafficIcons(response) {
+    $j('#ppp-table tbody tr').each(function(index) {
+        var row = table.row(this).data();
+        if (row) {
+            var txValue = parseInt(row.tx, 10);
+            var rxValue = parseInt(row.rx, 10);
+            var iconElement = $j(this).find('.traffic-icon');
+
+            var maxLimit = row.max_limit;
+            if (maxLimit === '1M/2M') {
+                if (txValue >= 2 * 1024 * 1024 || rxValue >= 2 * 1024 * 1024) {
+                    iconElement.removeClass().addClass('traffic-icon traffic-icon-red');
+                } else if (txValue >= 1.5 * 1024 * 1024 || rxValue >= 1.5 * 1024 * 1024) {
+                    iconElement.removeClass().addClass('traffic-icon traffic-icon-yellow');
+                } else {
+                    iconElement.removeClass().addClass('traffic-icon traffic-icon-green');
+                }
+            } else {
+                // Default logic for other max limits
+                if (txValue >= 2 * 1024 * 1024 || rxValue >= 2 * 1024 * 1024) {
+                    iconElement.removeClass().addClass('traffic-icon traffic-icon-red');
+                } else if (txValue >= 1.5 * 1024 * 1024 || rxValue >= 1.5 * 1024 * 1024) {
+                    iconElement.removeClass().addClass('traffic-icon traffic-icon-yellow');
+                } else {
+                    iconElement.removeClass().addClass('traffic-icon traffic-icon-green');
+                }
+            }
+        }
+    });
+}
 
 
 // Donation Popup
