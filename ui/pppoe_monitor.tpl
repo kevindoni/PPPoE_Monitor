@@ -12,818 +12,806 @@
 <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
 
 <style>
-    .modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.4);
-    }
-    .modal-content {
-    background-color: #fefefe;
-    margin: 15% auto;
-    padding: 0px;
-    border: 1px solid #888;
-    width: 80%;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    max-width: 600px;
-    }
-    .close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    }
-    .close:hover,
-    .close:focus {
-    color: black;
+.app-container {
+    padding: 2rem;
+    background: #f1f5f9;
+    min-height: 100vh;
+}
+
+/* Modern Navigation */
+.nav-container {
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.nav-item {
+    flex: 1;
+    min-width: 200px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: white;
+    border-radius: 10px;
+    color: #1e293b;
     text-decoration: none;
-    }
-    .card-body {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+}
+
+.nav-link.active {
+    background: #3b82f6;
+    color: white;
+}
+
+.nav-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Search Section */
+.search-container {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.search-form {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.search-group {
+    flex: 1;
+    min-width: 250px;
+    position: relative;
+}
+
+.search-group i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.search-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+}
+
+/* Table Styling */
+.table-container {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.data-table th {
+    background: #f8fafc;
     padding: 1rem;
-    }
-    .card-header {
-    padding: .75rem 1.25rem;
-    margin-bottom: 0;
-    background-color: none;
-    border-bottom: 1px solid rgba(0,0,0,.125);
-    }
-    .card-title {
-    margin-bottom: .75rem;
-    }
-    .form-group {
-    margin-bottom: 1rem;
-    }
-    .table-responsive {
-    display: block;
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    -ms-overflow-style: -ms-autohiding-scrollbar;
-    }
-    .table {
-    width: 100%;
-    margin-bottom: 1rem;
-    color: #212529;
-    }
-    .container {
-        padding-top: 20px;
-    }
-    #ppp-table_wrapper {
-        padding: 15px;
-    }
-    #ppp-table th, #ppp-table td {
-        text-align: center;
-        padding: 6px;
-    }
-    .table-striped tbody tr:nth-of-type(odd) {
-        background-color: #f9f9f9;
-    }
-    .panel-default {
-        border-color: #ddd;
-    }
-    .panel-heading {
-        background-color: #f5f5f5;
-        border-color: #ddd;
-    }
-    .nav-tabs {
-        margin-bottom: 15px;
-    }
-    .nav-tabs > li > a {
-        border-radius: 0;
-        color: #555;
-        background-color: #f9f9f9;
-        border-color: #ddd;
-    }
-    .nav-tabs > li.active > a,
-    .nav-tabs > li.active > a:focus,
-    .nav-tabs > li.active > a:hover {
-        background-color: #fff;
-        color: #333;
-        border: 1px solid #ddd;
-        border-bottom-color: transparent;
-        cursor: default;
-    }
-    .table-striped tbody tr:nth-of-type(odd) {
-        background-color: #f9f9f9;
-    }
-    .table th {
-        background-color: #f5f5f5;
-        color: #333;
-        font-weight: bold;
-        padding: 8px;
-    }
-    .table-striped > tbody > tr > td {
-        background-color: #fff;
-    }
-    .status-connect {
-        color: #5cb85c;
-    }
-    .status-disconnect {
-        color: #d9534f;
-    }
-      .modalsupport {
-      display: none;
-      position: fixed;
-      z-index: 1;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgb(0,0,0);
-      background-color: rgba(0,0,0,0.4);
-      justify-content: center;
-      align-items: center;
-    }
-    .modalsupport-content {
-      background-color: #fefefe;
-      margin: auto;
-      padding: 0px;
-      border: 1px solid #888;
-      width: 80%;
-      max-width: 500px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-      text-align: center;
-    }
-    .modalsupport-close {
-      color: #aaa;
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
-    }
-    .modalsupport-close:hover,
-    .modalsupport-close:focus {
-      color: black;
-      text-decoration: none;
-      cursor: pointer;
-    }
-    .card {
-      border: none;
-    }
-    .card-header {
-      background-color: none;
-      border-bottom: none;
-    }
-    .card-body {
-      padding: 20px;
-    }
-    .donate-button {
-      margin-top: 10px;
-    }
-    .modalsupport img {
-      width: 100px;
-      height: auto;
-      margin-top: 15px;
-    }
-    .dataSize {
-        white-space: nowrap;
-    }
-    .action-icons i {
-      cursor: pointer;
-      margin-right: 10px;
-      color: #007bff;
-    }
-    .action-icons i:hover {
-      color: #0056b3;
-    }
-    .modal-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #475569;
+}
+
+.data-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* Traffic Data */
+.traffic-box {
+    background: #f8fafc;
+    padding: 0.75rem;
+    border-radius: 8px;
     text-align: center;
-    width: 100%;
-    display: block;
-    font-size: 20px;
-    font-weight: bold;
-    margin-top: 20px;
-  }
-  .table-bordered {
-      width: 100%;
-      max-width: 100%;
-      table-layout: fixed;
-  }
-  .table-bordered th, .table-bordered td {
-      width: auto;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      background: none;
-      border: none;
-      padding: 10px;
-      vertical-align: middle;
-      text-align: center;
-  }
-  .advanced-search-container {
-    margin-bottom: 20px;
-    padding: 15px;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
+}
+
+.traffic-speed {
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.traffic-bytes {
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+/* Status Badge */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1;
+    min-width: 100px;
+    justify-content: center;
+}
+
+.status-badge.connected {
+    background: linear-gradient(135deg, #059669, #10b981);
+    color: white;
+    box-shadow: 0 2px 4px rgba(5, 150, 105, 0.2);
+}
+
+.status-badge.disconnected {
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+    color: white;
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2);
+}
+
+.status-badge i {
+    font-size: 8px;
+}
+
+.status-badge.connected i {
+    color: #34d399;
+    filter: drop-shadow(0 0 2px rgba(52, 211, 153, 0.8));
+    animation: pulse 2s infinite;
+}
+
+.status-badge.disconnected i {
+    color: #fca5a5;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.4;
     }
-    .form-inline .form-group {
-        margin-right: 10px;
+    50% {
+        opacity: 1;
     }
-    .dataTables_filter {
-        display: none;
+    100% {
+        opacity: 0.4;
     }
-    @media (max-width: 768px) {
-        .panel-default {
-            padding: 10px;
-            margin: 0;
-        }
-        .panel-heading {
-            padding: 5px 15px;
-        }
-        .panel-body {
-            padding: 5px 10px;
-        }
-    .table th, .table td {
-        font-size: 15px; /* Mengurangi ukuran font pada tabel */
-        }
+}
+
+/* Action Button */
+.btn-action {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-action:hover {
+    background: #dc2626;
+    transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .app-container {
+        padding: 1rem;
     }
-    .traffic-icon {
-        display: inline-block;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        margin-right: 5px;
-        vertical-align: middle;
+    
+    .nav-item {
+        width: 100%;
     }
-    .traffic-icon-green {
-        background-color: green;
+    
+    .search-group {
+        width: 100%;
     }
-    .traffic-icon-yellow {
-        background-color: yellow;
+    
+    .table-container {
+        overflow-x: auto;
     }
-    .traffic-icon-red {
-        background-color: red;
-    }
-    .text-left {
-    text-align: left !important;
-    }
+}
+
+/* Traffic Icon Styling */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.traffic-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 16px;
+    height: 24px;
+    position: relative;
+}
+
+.traffic-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin: 2px 0;
+    transition: all 0.3s ease;
+}
+
+.traffic-arrow {
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+}
+
+.traffic-up {
+    border-bottom: 4px solid #6c757d;
+}
+
+.traffic-down {
+    border-top: 4px solid #6c757d;
+}
+
+.traffic-dot.traffic-icon-green {
+    background: #28a745;
+    box-shadow: 0 0 4px #28a745;
+}
+
+.traffic-dot.traffic-icon-yellow {
+    background: #ffc107;
+    box-shadow: 0 0 4px #ffc107;
+}
+
+.traffic-dot.traffic-icon-red {
+    background: #dc3545;
+    box-shadow: 0 0 4px #dc3545;
+}
+
+.username {
+    font-weight: 500;
+    color: #2d3748;
+}
+
+/* Active traffic animation */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.traffic-dot.active {
+    animation: pulse 1s infinite;
+}
+
+/* Update arrow colors based on traffic */
+.traffic-indicator.active .traffic-up {
+    border-bottom-color: #28a745;
+}
+
+.traffic-indicator.active .traffic-down {
+    border-top-color: #dc3545;
+}
+
+/* Enhanced Reconnect Button */
+.action-btn.reset {
+    background: linear-gradient(135deg, #f43f5e, #e11d48);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 4px rgba(244, 63, 94, 0.2);
+}
+
+.action-btn.reset:hover {
+    background: linear-gradient(135deg, #e11d48, #be123c);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3);
+}
+
+.action-btn.reset:active {
+    transform: translateY(0);
+}
+
+.action-btn.reset.loading {
+    background: #9ca3af;
+    cursor: wait;
+    pointer-events: none;
+}
+
+.action-btn.reset.loading i {
+    animation: spin 1s linear infinite;
+}
 </style>
-<div class="container">
-    <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-            <!-- Form dan navigasi tabs -->
-            <form class="form-horizontal" method="post" role="form" action="{$_url}plugin/pppoe_monitor_router_menu">
-                <ul class="nav nav-tabs">
-                    {foreach $routers as $r}
-                    <li role="presentation" {if $r['id']==$router}class="active"{/if}>
-                        <a href="{$_url}plugin/pppoe_monitor_router_menu/{$r['id']}">{$r['name']}</a>
-                    </li>
-                    {/foreach}
-                </ul>
-            </form>
-            <div class="advanced-search-container">
-                <form id="advancedSearchForm" class="form-inline">
-                    <div class="form-group">
-                        <label for="searchUsername">Username:</label>
-                        <input type="text" class="form-control" id="searchUsername" placeholder="Enter username">
-                    </div>
-                    <div class="form-group">
-                        <label for="searchStatus">Status:</label>
-                        <select class="form-control" id="searchStatus">
-                            <option value="">Any</option>
-                            <option value="Connected">Connected</option>
-                            <option value="Disconnected">Disconnected</option>
-                        </select>
-                    </div>
-                </form>
+
+<div class="app-container">
+    <!-- Navigation -->
+    <nav class="nav-container">
+        {foreach $routers as $r}
+        <div class="nav-item">
+            <a href="{$_url}plugin/pppoe_monitor_router_menu/{$r['id']}" 
+               class="nav-link {if $r['id']==$router}active{/if}">
+                <i class="fas fa-router"></i>
+                <span>{$r['name']}</span>
+            </a>
+        </div>
+        {/foreach}
+    </nav>
+
+    <!-- Search -->
+    <div class="search-container">
+        <div class="search-form">
+            <div class="search-group">
+                <i class="fas fa-search"></i>
+                <input type="text" class="search-input" id="searchUsername" placeholder="Search username...">
             </div>
-            <div class="panel panel-default">
-                <div class="table-responsive">
-                    <div class="panel-body">
-                        <table class="table table-striped" id="ppp-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Username</th>
-                                    <th>IP Address</th>
-                                    <th>Uptime</th>
-                                    <th>Service</th>
-                                    <th>Caller ID</th>
-                                    <th>Download</th>
-                                    <th>Upload</th>
-                                    <th>Max Limit</th>
-                                    <th>Total Usage</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Isi tabel akan dimasukkan melalui JavaScript -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            <div class="search-group">
+                <i class="fas fa-filter"></i>
+                <select class="search-input" id="searchStatus">
+                    <option value="">All Status</option>
+                    <option value="Connected">Connected</option>
+                    <option value="Disconnected">Disconnected</option>
+                </select>
             </div>
         </div>
     </div>
-</div>
-<div id="detailsModal" class="modal">
-  <div class="modal-content">
-    <span class="close">&times;</span>
-    <div class="container-fluid mt-5">
-      <div class="card">
-        <div class="card-header">
-          <h5 class="modal-title">Trafik for <span id="modalUsername"></span></h5>
-        </div>
-        <div class="card-body">
-          <div class="table-responsive mt-4">
-            <table class="table table-bordered">
-              <thead>
+
+    <!-- Table -->
+    <div class="table-container">
+        <table class="data-table" id="ppp-table">
+            <thead>
                 <tr>
-                <input type="hidden" id="interface" value="">
-                  <th id="tabletx"><i class="fa fa-download"></i></th>
-                  <th id="tablerx"><i class="fa fa-upload"></i></th>
+                    <th>Username</th>
+                    <th>IP Address</th>
+                    <th>Uptime</th>
+                    <th>Service</th>
+                    <th>Caller ID</th>
+                    <th>Download Speed</th>
+                    <th>Upload Speed</th>
+                    <th>Max Limit</th>
+                    <th>Total Usage</th>
+                    <th>Status</th>
+                    <th>Actions</th>
                 </tr>
-              </thead>
-            </table>
-          </div>
-          <div id="chart" class="mt-3"></div>
-          <div id="dailyChart" class="mt-3"></div>
-        </div>
-      </div>
+            </thead>
+            <tbody>
+                <!-- Isi tabel akan dimasukkan melalui JavaScript -->
+            </tbody>
+        </table>
     </div>
-  </div>
 </div>
-<div id="donationPopup" class="modalsupport">
-  <div class="modalsupport-content">
-    <span class="modalsupport-close">&times;</span>
-    <div class="container-fluid mt-5">
-      <div class="card">
-        <div class="card-header">
-          <h5 class="modal-title">Support Us</h5>
-        </div>
-        <div class="card-body">
-          <p>Your support helps us maintain and improve our services. Consider donating today!</p>
-          <button class="btn btn-primary donate-button">Donate Now</button>
-          <p class="mt-3">Thank you for your support!</p>
-          <img src="https://kodingku.my.id/bmc_qr.png" alt="QR Code">
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+
 <script>
 var $j = jQuery.noConflict();
 
-$j(document).ready(function() {
-    var table = $j('#ppp-table').DataTable({
-        responsive: true,
-        columns: [
-            { data: 'id', visible: false },
-            {
-                data: 'username',
-                className: 'text-left',
-                render: function(data, type, row) {
-                    return '<div style="width: 150px;"><i class="traffic-icon traffic-icon-green"></i> ' + data + '</div>';
-                }
-            },
-            { data: 'address' },
-            { data: 'uptime' },
-            { data: 'service' },
-            { data: 'caller_id' },
-            { data: 'tx', className: 'dataSize' },
-            { data: 'rx', className: 'dataSize' },
-            {
-                data: 'max_limit',
-                className: 'dataSize',
-                render: function(data, type, row) {
-                    return getMaxLimit(row);
-                }
-            },
-            { data: 'total', className: 'dataSize' },
-            {
-                data: 'status',
-                render: function(data) {
-                    if (data === 'Connected') {
-                        return '<small class="label bg-green">Connected</small>';
-                    } else if (data === 'Disconnected') {
-                        return '<small class="label bg-red">Disconnected</small>';
-                    } else {
-                        return '';
-                    }
-                }
-            },
-            {
-                data: null,
-                render: function(data, type, row) {
-                    return '<div class="action-icons" style="display: flex; align-items: center;">' +
-                        '<i class="fa fa-area-chart view-details" style="color: blue; cursor: pointer;" title="View Traffic" data-username="' + row.username + '" data-id="' + row.id + '"></i> ' +
-                        '<i class="fa fa-retweet reconnect-button" style="color: red; cursor: pointer;" title="Reconnect" data-username="' + row.username + '" data-id="' + row.id + '"></i> ' +
-                        '</div>';
-                }
-            }
-        ],
-        order: [[0, 'asc']],
-        pageLength: 10,
-        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'All']],
-        dom: 'Bfrtip',
-        buttons: ['reset', 'pageLength'],
-        paging: true,
-        info: true,
-        searching: true,
-        ajax: {
-            url: '{$_url}plugin/pppoe_monitor_router_get_combined_users/{$router}',
-            dataSrc: ''
-        }
-    });
+// Update constants for better real-time performance
+const CHART_UPDATE_INTERVAL = 2000; // 2 seconds
+const TRAFFIC_REQUEST_TIMEOUT = 3000; // 3 seconds
+const MAX_RETRIES = 3;
 
-
-    // Fungsi untuk mendapatkan batas maksimum
-    function getMaxLimit(data) {
-        if (data.hasOwnProperty('max_limit')) {
-            return data.max_limit.toString();
-        } else {
-            return 'N/A';
-        }
+class TrafficMonitor {
+    constructor() {
+        this.trafficData = {};
+        this.pendingRequests = {};
+        this.retryCount = {};
+        this.activeUsers = new Set();
+        this.tableInitialized = false;
+        this.isPolling = false;
+        this.pollTimeout = null;
+        
+        this.initializeDataTable();
+        this.initializeEventListeners();
     }
-    
-    // Handle view details icon clicks
-    $j('#ppp-table tbody').on('click', '.view-details', function(e) {
-        e.preventDefault();
-        var username = $j(this).data('username');
-        var id = $j(this).data('id');
 
-        viewDetails(id, username);
-    });
+    initializeEventListeners() {
+        // Add click handler for reconnect buttons
+        $j('#ppp-table').on('click', '.action-btn.reset:not(.disabled)', (e) => {
+            const button = $j(e.currentTarget);
+            const username = button.data('username');
+            const id = button.data('id');
+            
+            if (confirm('Are you sure you want to disconnect ' + username + '?')) {
+                this.reconnectUser(id, username);
+            }
+        });
+    }
 
-    // Handle reconnect icon clicks
-    $j('#ppp-table tbody').on('click', '.reconnect-button', function(e) {
-        e.preventDefault();
-        var username = $j(this).data('username');
-        var id = $j(this).data('id');
+    async reconnectUser(id, username) {
+        try {
+            const button = $j('[data-username="' + username + '"]');
+            
+            // Disable button and show loading state
+            button.addClass('loading')
+                  .prop('disabled', true)
+                  .html('<i class="fas fa-spinner"></i> Disconnecting...');
 
-        reconnect(id, username);
-    });
-
-    // Function to handle view details
-    function viewDetails(id, username) {
-    console.log("Viewing details for:", username);
-    $j('#modalUsername').text(username);
-
-    $j.ajax({
-        url: '{$_url}plugin/pppoe_monitor_router_get_combined_users',
-        method: 'GET',
-        dataType: 'json',
-        success: function(response) {
-            var user = response.find(function(item) {
-                return (item.username && item.username.toString().toLowerCase() === username.toString().toLowerCase());
+            const response = await $j.ajax({
+                url: '{$_url}plugin/pppoe_monitor_router_delete_ppp_user/{$router}',
+                method: 'POST',
+                data: { id: id, username: username },
+                dataType: 'json'
             });
 
-            if (username !== null && user !== null && user.username !== null) {
-                var interfaceValue = '<pppoe-' + user.username + '>';
-                $j('#interface').val(interfaceValue);
-                $j('#selectedInterface').text(interfaceValue);
-                $j('#detailsModal').css('display', 'block');
-                createChart();
-                createDailyChart(username); // Pass the username to createDailyChart
+            if (response.success) {
+                this.showNotification(
+                    'Success', 
+                    '<i class="fas fa-check-circle"></i> User ' + username + ' has been disconnected', 
+                    'success'
+                );
+                
+                // Refresh the table after short delay
+                setTimeout(() => this.table.ajax.reload(null, false), 1000);
             } else {
-                alert('User not found.');
+                throw new Error(response.message || 'Failed to disconnect user');
             }
-        },
-        error: function(xhr, textStatus, errorThrown) {
-            alert('Failed to retrieve user data.');
-            console.error('AJAX error:', textStatus, errorThrown);
+        } catch (error) {
+            console.error('Disconnect error:', error);
+            this.showNotification(
+                'Error',
+                '<i class="fas fa-exclamation-triangle"></i> ' + error.message,
+                'error'
+            );
+            
+            // Restore button state
+            const button = $j('[data-username="' + username + '"]');
+            button.removeClass('loading')
+                  .prop('disabled', false)
+                  .html('<i class="fas fa-sync-alt"></i> Reset');
         }
-    });
     }
 
+    showNotification(title, message, type = 'info') {
+        const notificationClass = type === 'success' ? 'bg-green' : 'bg-red';
+        const notification = $j('<div>')
+            .addClass('notification ' + notificationClass)
+            .html('<strong>' + title + '</strong><br>' + message)
+            .appendTo('body');
+        
+        setTimeout(() => {
+            notification.fadeOut(300, function() { $j(this).remove(); });
+        }, 3000);
+    }
 
-
-// Function to handle reconnect
-function reconnect(id, username) {
-    if (confirm('Are you sure you want to disconnect user ' + username + '?')) {
-        $.ajax({
-            url: '{$_url}plugin/pppoe_monitor_router_delete_ppp_user/{$router}', // Perbaiki URL AJAX
-            method: 'POST',
-            data: { id: id, username: username },
-            success: function(response) {
-                if (response.success) {
-                    alert('User ' + username + ' has been disconnected.');
-                    setTimeout(function() {
-                        table.ajax.reload();
-                    }, 2000);
-                } else {
-                    alert('Failed to disconnect user ' + username + ': ' + (response.message || 'Unknown error'));
+    initializeDataTable() {
+        if (this.tableInitialized) return;
+        
+        const self = this;
+        this.table = $j('#ppp-table').DataTable({
+            processing: true,
+            serverSide: false,
+            responsive: true,
+            ajax: {
+                url: '{$_url}plugin/pppoe_monitor_router_get_combined_users/{$router}',
+                dataSrc: function(json) {
+                    if (json) {
+                        setTimeout(() => self.startMonitoring(), 1000);
+                    }
+                    return json || [];
                 }
             },
-            error: function(xhr, textStatus, errorThrown) {
-                alert('Failed to disconnect user ' + username + ': ' + (errorThrown || 'Unknown error'));
-                console.error('AJAX error:', textStatus, errorThrown);
+            columns: [
+                {
+                    data: 'username',
+                    render: function(data, type, row) {
+                        const traffic = self.trafficData[data] || {};
+                        const speed = traffic.tx || '0.00 Kbps';
+                        const iconClass = self.getTrafficIconClass(speed);
+                        
+                        return '<div class="user-info">' +
+                            '<div class="traffic-indicator">' +
+                            '<div class="traffic-arrow traffic-up"></div>' +
+                            '<div class="traffic-dot ' + iconClass + '"></div>' +
+                            '<div class="traffic-arrow traffic-down"></div>' +
+                            '</div>' +
+                            '<span class="username">' + (data || '') + '</span>' +
+                            '</div>';
+                    }
+                },
+                { data: 'address' },
+                { data: 'uptime' },
+                { data: 'service' },
+                { data: 'caller_id' },
+                { 
+                    data: 'tx',
+                    render: function(data, type, row) {
+                        const username = row.username || '';
+                        const traffic = self.trafficData[username] || {};
+                        const speed = traffic.tx || '0.00 Kbps';
+                        const bytes = traffic.txRaw || 0;
+                        
+                        return '<div id="' + username + '-tx" class="traffic-data">' +
+                            '<span class="bytes-counter">' + formatBytes(bytes) + '</span><br>' +
+                            '<small class="speed-indicator">' + speed + '</small>' +
+                            '</div>';
+                    }
+                },
+                { 
+                    data: 'rx',
+                    render: function(data, type, row) {
+                        const username = row.username || '';
+                        const traffic = self.trafficData[username] || {};
+                        const speed = traffic.rx || '0.00 Kbps';
+                        const bytes = traffic.rxRaw || 0;
+                        
+                        return '<div id="' + username + '-rx" class="traffic-data">' +
+                            '<span class="bytes-counter">' + formatBytes(bytes) + '</span><br>' +
+                            '<small class="speed-indicator">' + speed + '</small>' +
+                            '</div>';
+                    }
+                },
+                { data: 'max_limit', defaultContent: 'N/A' },
+                { data: 'total', defaultContent: '0 B' },
+                {
+                    data: 'status',
+                    render: function(data) {
+                        var status = data.toLowerCase();
+                        var icon = status === 'connected' ? 
+                            '<i class="fas fa-circle"></i>' : 
+                            '<i class="fas fa-circle-xmark"></i>';
+                            
+                        return '<span class="status-badge ' + status + '">' +
+                            icon + ' ' + 
+                            data +
+                            '</span>';
+                    }
+                },
+                {
+                    data: null,
+                    render: function(data, type, row) {
+                        var btnClass = row.status.toLowerCase() === 'connected' ? '' : 'disabled';
+                        return '<button class="action-btn reset ' + btnClass + '" ' +
+                               'data-username="' + (row.username || '') + '" ' +
+                               'data-id="' + (row.id || '') + '">' +
+                               '<i class="fas fa-sync-alt"></i> Reset' +
+                               '</button>';
+                    }
+                }
+            ],
+            order: [[1, 'asc']],
+            pageLength: 10,
+            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'All']],
+            dom: 'Bfrtip'
+        });
+
+        this.tableInitialized = true;
+    }
+
+    startMonitoring() {
+        this.updateActiveUsers();
+        this.startPolling();
+    }
+
+    updateActiveUsers() {
+        const rows = this.table.rows().data();
+        this.activeUsers.clear();
+        
+        rows.each(row => {
+            if (row.status === 'Connected' && row.username) {
+                this.activeUsers.add(row.username.trim());
             }
         });
+
+        console.log('Active users:', Array.from(this.activeUsers));
+    }
+
+    startPolling() {
+        if (this.isPolling) return;
+        
+        this.isPolling = true;
+        this.doPoll();
+    }
+
+    async doPoll() {
+        try {
+            await this.pollTraffic();
+        } catch (error) {
+            console.error('Polling error:', error);
+        }
+
+        // Schedule next poll if still active
+        if (this.isPolling) {
+            this.pollTimeout = setTimeout(() => this.doPoll(), CHART_UPDATE_INTERVAL);
+        }
+    }
+
+    stopPolling() {
+        this.isPolling = false;
+        if (this.pollTimeout) {
+            clearTimeout(this.pollTimeout);
+            this.pollTimeout = null;
+        }
+    }
+
+    async pollTraffic() {
+        this.updateActiveUsers();
+        const users = Array.from(this.activeUsers);
+        
+        // Process users in batches of 3
+        for (let i = 0; i < users.length; i += 3) {
+            const batch = users.slice(i, i + 3);
+            await Promise.all(batch.map(user => this.fetchTrafficData(user)));
+            
+            // Small delay between batches
+            if (i + 3 < users.length) {
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+        }
+    }
+
+    async fetchTrafficData(username) {
+        if (this.pendingRequests[username]) return;
+        
+        try {
+            this.pendingRequests[username] = true;
+            const response = await $j.ajax({
+                url: '{$_url}plugin/pppoe_monitor_router_traffic/{$router}',
+                data: { username },
+                timeout: TRAFFIC_REQUEST_TIMEOUT,
+                cache: false
+            });
+
+            if (response?.success && response?.rows) {
+                this.trafficData[username] = {
+                    tx: this.formatSpeed(response.rows.tx[0]),
+                    rx: this.formatSpeed(response.rows.rx[0]),
+                    txBytes: response.bytes?.tx || 0,
+                    rxBytes: response.bytes?.rx || 0,
+                    timestamp: Date.now()
+                };
+
+                this.updateUserRow(username);
+            }
+        } catch (error) {
+            console.warn('Traffic error for', username, ':', error.message);
+        } finally {
+            delete this.pendingRequests[username];
+        }
+    }
+
+    formatSpeed(bitsPerSecond) {
+        const bits = Math.max(0, parseInt(bitsPerSecond) || 0);
+        const kbps = bits / 1024;
+        
+        if (kbps >= 1024) {
+            return (kbps / 1024).toFixed(2) + ' Mbps';
+        }
+        return kbps.toFixed(2) + ' Kbps';
+    }
+
+    getSpeedClass(speed) {
+        if (!speed) return 'speed-low';
+        
+        // Extract number and unit from speed string
+        const matches = speed.match(/^([\d.]+)\s*(Kbps|Mbps)$/);
+        if (!matches) return 'speed-low';
+
+        const value = parseFloat(matches[1]);
+        const unit = matches[2];
+        
+        // Convert everything to Mbps for comparison
+        const mbps = unit === 'Kbps' ? value / 1024 : value;
+        
+        if (mbps > 2) return 'speed-high';
+        if (mbps > 1) return 'speed-medium';
+        return 'speed-low';
+    }
+
+    getTrafficIconClass(speed) {
+        if (!speed) return 'traffic-icon-green';
+        
+        const matches = speed.match(/^([\d.]+)\s*(Kbps|Mbps)$/);
+        if (!matches) return 'traffic-icon-green';
+
+        const value = parseFloat(matches[1]);
+        const unit = matches[2];
+        
+        // Convert to Mbps for comparison
+        const mbps = unit === 'Kbps' ? value / 1024 : value;
+        
+        // Reverse the color logic:
+        // Green for low traffic (< 1 Mbps)
+        // Yellow/Orange for medium traffic (1-2 Mbps)
+        // Red for high traffic (> 2 Mbps)
+        if (mbps < 1) return 'traffic-icon-green';
+        if (mbps <= 2) return 'traffic-icon-yellow';
+        return 'traffic-icon-red';
+    }
+
+    updateSpeedDisplay(username) {
+        if (!username || !this.trafficData[username]) return;
+        
+        const data = this.trafficData[username];
+        if (!data.tx || !data.rx) return;
+
+        const txCell = $j('#' + username + '-tx');
+        const rxCell = $j('#' + username + '-rx');
+
+        if (txCell.length) {
+            txCell.find('.speed-indicator').text(data.tx);
+            txCell.find('.bytes-counter').text(formatBytes(data.txRaw));
+        }
+
+        if (rxCell.length) {
+            rxCell.find('.speed-indicator').text(data.rx);
+            rxCell.find('.bytes-counter').text(formatBytes(data.rxRaw));
+        }
+    }
+
+    updateUserRow(username) {
+        var data = this.trafficData[username];
+        if (!data) return;
+
+        var iconClass = this.getTrafficIconClass(data.tx);
+        var cell = $j('#ppp-table td:contains("' + username + '")').find('.traffic-dot');
+        
+        if (cell.length) {
+            cell.removeClass('traffic-icon-green traffic-icon-yellow traffic-icon-red')
+                .addClass(iconClass);
+                
+            // Add active class if there's traffic
+            var hasTraffic = parseFloat(data.tx) > 0 || parseFloat(data.rx) > 0;
+            cell.toggleClass('active', hasTraffic);
+            cell.closest('.traffic-indicator').toggleClass('active', hasTraffic);
+        }
+
+        // Update traffic data display
+        var txCell = $j('#' + username + '-tx');
+        var rxCell = $j('#' + username + '-rx');
+
+        if (txCell.length) {
+            txCell.find('.bytes-counter').text(formatBytes(data.txBytes));
+            txCell.find('.speed-indicator').text(data.tx);
+            txCell.attr('class', 'traffic-data ' + this.getSpeedClass(data.tx));
+        }
+
+        if (rxCell.length) {
+            rxCell.find('.bytes-counter').text(formatBytes(data.rxBytes));
+            rxCell.find('.speed-indicator').text(data.rx);
+            rxCell.attr('class', 'traffic-data ' + this.getSpeedClass(data.rx));
+        }
+    }
+
+    findRowIndex(username) {
+        const rows = this.table.rows().data();
+        for (let i = 0; i < rows.length; i++) {
+            if (rows[i].username === username) {
+                return i;
+            }
+        }
+        return -1;
     }
 }
 
-
-    // Close modal on click of close button
-    $j('.close').click(function() {
-        $j('#detailsModal').css('display', 'none');
-    });
-
-    // Close modal on click outside the modal
-    $j(window).click(function(event) {
-        if (event.target == document.getElementById('detailsModal')) {
-            $j('#detailsModal').css('display', 'none');
-        }
-    });
-
-    // Handle advanced search form submission
-    $j(document).ready(function() {
-        $j('#advancedSearchForm').on('submit', function(e) {
-            e.preventDefault(); // Mencegah pengiriman form secara default
-
-            // Mendapatkan nilai dari input
-            var username = $j('#searchUsername').val();
-            var status = $j('#searchStatus').val();
-
-            // Melakukan pencarian dan menggambar ulang tabel
-            table.column(1).search(username).draw(); // Kolom 1 untuk username
-            table.column(9).search(status).draw(); // Kolom 9 untuk status
-        });
-
-        // Menambahkan ikon search ke dalam tombol
-        var searchButton = $j('<button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>');
-        $j('#advancedSearchForm').append(searchButton);
-    });
-
+// Initialize monitor
+$j(document).ready(() => {
+    window.monitor = new TrafficMonitor();
 });
 
-var chart;
-var chartData = {
-    txData: [],
-    rxData: []
-};
-
-function createChart() {
-    var options = {
-        chart: {
-            height: 350,
-            type: 'area',
-            animations: {
-                enabled: true,
-                easing: 'linear',
-                speed: 200,
-                animateGradually: {
-                    enabled: true,
-                    delay: 150
-                },
-                dynamicAnimation: {
-                    enabled: true,
-                    speed: 200
-                }
-            },
-            events: {
-                mounted: function() {
-                    updateTrafficValues();
-                    setInterval(updateTrafficValues, 3000);
-                }
-            }
-        },
-        stroke: {
-            curve: 'smooth'
-        },
-        series: [
-            { name: 'Download', data: chartData.txData },
-            { name: 'Upload', data: chartData.rxData }
-        ],
-        xaxis: {
-            type: 'datetime',
-            labels: {
-                formatter: function(value) {
-                    return new Date(value).toLocaleTimeString();
-                }
-            }
-        },
-        yaxis: {
-            title: {
-                text: 'Trafik Real Time'
-            },
-            labels: {
-                formatter: function(value) {
-                    return formatBytes(value);
-                }
-            }
-        },
-        tooltip: {
-            x: {
-                format: 'HH:mm:ss'
-            },
-            y: {
-                formatter: function(value) {
-                    return formatBytes(value) + 'ps';
-                }
-            }
-        },
-        dataLabels: {
-            enabled: true,
-            formatter: function(value) {
-                return formatBytes(value);
-            }
-        }
-    };
-
-    chart = new ApexCharts(document.querySelector("#chart"), options);
-    chart.render();
-}
-
-var dailyChart; // Declare dailyChart variable globally
-
-function createDailyChart(username) {
-    var currentDate = new Date();
-    var startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getTime();
-    var endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getTime();
-
-    generateDailyData(username)
-        .then(dailyData => {
-            var dailyTotals = dailyData.download.map((item, index) => ({
-                x: item.x,
-                y: item.y + dailyData.upload[index].y
-            }));
-
-            if (dailyChart) {
-                dailyChart.destroy();
-            }
-
-            var options = {
-                chart: {
-                    height: 350,
-                    type: 'bar',
-                    animations: {
-                        enabled: true,
-                        easing: 'linear',
-                        speed: 800,
-                        animateGradually: {
-                            enabled: true,
-                            delay: 150
-                        },
-                        dynamicAnimation: {
-                            enabled: true,
-                            speed: 200
-                        }
-                    },
-                    toolbar: {
-                        show: true,
-                    }
-                },
-                plotOptions: {
-                    bar: {
-                        horizontal: false,
-                        columnWidth: '15%',
-                        endingShape: 'rounded'
-                    },
-                },
-                dataLabels: {
-                    enabled: false
-                },
-                stroke: {
-                    show: true,
-                    width: 2,
-                    colors: ['transparent']
-                },
-                series: [{
-                    name: 'Download',
-                    data: dailyData.upload
-                }, {
-                    name: 'Upload',
-                    data: dailyData.download
-                }, {
-                    name: 'Daily Totals',
-                    data: dailyTotals
-                }],
-                xaxis: {
-                    type: 'datetime',
-                    min: startOfMonth,
-                    max: endOfMonth,
-                    labels: {
-                        formatter: function(value) {
-                            return new Date(value).toLocaleDateString();
-                        }
-                    }
-                },
-                yaxis: {
-                    title: {
-                        text: 'Total Usage'
-                    },
-                    labels: {
-                        formatter: function(value) {
-                            return formatBytesPerSecond(value);
-                        }
-                    }
-                },
-                fill: {
-                    opacity: 1
-                },
-                tooltip: {
-                    y: {
-                        formatter: function(val) {
-                            return formatBytes(val);
-                        }
-                    }
-                },
-                responsive: [
-                    {
-                        breakpoint: 480,
-                        options: {
-                            plotOptions: {
-                                bar: {
-                                    columnWidth: '100%'
-                                }
-                            }
-                        }
-                    }
-                ]
-            };
-
-            dailyChart = new ApexCharts(document.querySelector("#dailyChart"), options);
-            dailyChart.render();
-        })
-        .catch(error => {
-            console.error("Failed to fetch daily usage data:", error);
-        });
-}
-
-// ========================================== NEW FITUR ==========================================//
-function generateDailyData(username, startDate, endDate) {
-    return new Promise((resolve, reject) => {
-        $j.ajax({
-            url: '{$_url}plugin/pppoe_monitor_router_daily_data_usage/{$router}',
-            data: {
-                username: username,
-                start_date: startDate,
-                end_date: endDate
-            },
-            dataType: 'json',
-            success: function(data) {
-                console.log("Raw data from server for username", username, ":", data);
-
-                var dailyData = {
-                    download: [],
-                    upload: []
-                };
-                
-                // Iterate over dates in data and find the correct user data
-                for (var date in data) {
-                    var users = data[date].users;
-                    
-                    // Handle username as number case
-                    var userData = users.find(user => user.username === username || user.username == parseInt(username));
-                    
-                    if (userData) {
-                        var rxBytes = convertToBytes(userData.rx);
-                        var txBytes = convertToBytes(userData.tx);
-                        
-                        // Store data in dailyData based on date
-                        dailyData.download.push({ x: new Date(date).getTime(), y: rxBytes });
-                        dailyData.upload.push({ x: new Date(date).getTime(), y: txBytes });
-                    }
-                }
-
-                console.log("Filtered daily data for username", username, ":", dailyData);
-                resolve(dailyData);
-            },
-            error: function(xhr, textStatus, errorThrown) {
-                console.error("AJAX Error in generateDailyData:", textStatus, errorThrown);
-                console.log("Status:", xhr.status);
-                console.log("Response Text:", xhr.responseText);
-                reject(errorThrown);
-            }
-        });
-    });
-}
-
-function convertToBytes(value) {
-    let [number, unit] = value.split(' ');
-    number = parseFloat(number);
-    switch (unit) {
-        case 'GB':
-            return number * 1024 * 1024 * 1024;
-        case 'MB':
-            return number * 1024 * 1024;
-        case 'KB':
-            return number * 1024;
-        default:
-            return number;
-    }
-}
-// ========================================== NEW FITUR ==========================================//
-function formatBytesPerSecond(bytes) {
-    if (bytes === 0) {
-        return '0 Bps';
-    }
-    var k = 1024;
-    var sizes = ['Bps', 'KBps', 'MBps', 'GBps', 'TBps', 'PBps', 'EBps', 'ZBps', 'YBps'];
-    var i = Math.floor(Math.log(bytes) / Math.log(k));
-    var formattedValue = parseFloat((bytes / Math.pow(k, i)).toFixed(2));
-    return formattedValue + ' ' + sizes[i];
-}
-
-// Fungsi untuk mengubah ukuran dalam byte menjadi format yang lebih mudah dibaca
+// Define helper functions outside ready handler
 function formatBytes(bytes, decimals = 2) {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -833,129 +821,625 @@ function formatBytes(bytes, decimals = 2) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
 
-// Function to update traffic values and icons
-function updateTrafficValues() {
-    var username = $j('#modalUsername').text().trim();
-    var interfaceValue = $j('#interface').val();
-
-    if (!username || !interfaceValue) {
-        console.error("Username or interface is undefined or empty.");
-        return;
-    }
-
-    $j.ajax({
-        url: '{$_url}plugin/pppoe_monitor_router_traffic/{$router}',
-        dataType: 'json',
-        data: { username: username, interface: interfaceValue },
-        success: function(data) {
-            var timestamp = new Date().getTime();
-            var txData = parseInt(data.rows.tx[0]) || 0;
-            var rxData = parseInt(data.rows.rx[0]) || 0;
-
-            // Log data tx dan rx untuk debugging
-            console.log('txData:', txData, 'rxData:', rxData);
-
-            // Update chart data
-            chartData.txData.push({ x: timestamp, y: txData });
-            chartData.rxData.push({ x: timestamp, y: rxData });
-
-            var maxDataPoints = 10;
-            if (chartData.txData.length > maxDataPoints) {
-                chartData.txData.shift();
-                chartData.rxData.shift();
-            }
-
-            // Update series on the chart
-            chart.updateSeries([
-                { name: 'Download', data: chartData.txData },
-                { name: 'Upload', data: chartData.rxData }
-            ]);
-
-            // Find the icon element for the specific user based on username
-            var userRow = $j('#ppp-table tbody tr').filter(function() {
-                return $j(this).find('td').eq(1).text().trim() === username;
-            });
-
-            var iconElement = userRow.find('.traffic-icon');
-
-            // Define thresholds for traffic levels
-            var thresholdHigh = 2000; // Adjust these values as needed
-            var thresholdMedium = 1500; // Adjust these values as needed
-
-            // Adjust icon color based on traffic levels
-            if (txData > thresholdHigh || rxData > thresholdHigh) {
-                iconElement.removeClass('traffic-icon-green traffic-icon-yellow').addClass('traffic-icon-red');
-            } else if (txData > thresholdMedium || rxData > thresholdMedium) {
-                iconElement.removeClass('traffic-icon-green traffic-icon-red').addClass('traffic-icon-yellow');
-            } else {
-                iconElement.removeClass('traffic-icon-yellow traffic-icon-red').addClass('traffic-icon-green');
-            }
-        },
-        error: function(xhr, textStatus, errorThrown) {
-            console.error("Status: " + textStatus);
-            console.error("Error: " + errorThrown);
-        }
-    });
+function getMaxLimit(data) {
+    return data.max_limit || 'N/A';
 }
 
-
-
-// Function to update traffic icons based on table data
-function updateTrafficIcons(response) {
-    $j('#ppp-table tbody tr').each(function(index) {
-        var row = table.row(this).data();
-        if (row) {
-            var txValue = parseInt(row.tx, 10);
-            var rxValue = parseInt(row.rx, 10);
-            var iconElement = $j(this).find('.traffic-icon');
-
-            var maxLimit = row.max_limit;
-            if (maxLimit === '1M/2M') {
-                if (txValue >= 2 * 1024 * 1024 || rxValue >= 2 * 1024 * 1024) {
-                    iconElement.removeClass().addClass('traffic-icon traffic-icon-red');
-                } else if (txValue >= 1.5 * 1024 * 1024 || rxValue >= 1.5 * 1024 * 1024) {
-                    iconElement.removeClass().addClass('traffic-icon traffic-icon-yellow');
-                } else {
-                    iconElement.removeClass().addClass('traffic-icon traffic-icon-green');
-                }
-            } else {
-                // Default logic for other max limits
-                if (txValue >= 2 * 1024 * 1024 || rxValue >= 2 * 1024 * 1024) {
-                    iconElement.removeClass().addClass('traffic-icon traffic-icon-red');
-                } else if (txValue >= 1.5 * 1024 * 1024 || rxValue >= 1.5 * 1024 * 1024) {
-                    iconElement.removeClass().addClass('traffic-icon traffic-icon-yellow');
-                } else {
-                    iconElement.removeClass().addClass('traffic-icon traffic-icon-green');
-                }
-            }
-        }
-    });
-}
-
-
-// Donation Popup
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(function() {
-        document.getElementById('donationPopup').style.display = 'flex';
-    }, 1000);
-});
-
-document.getElementById('donationPopup').querySelector('.modalsupport-close').addEventListener('click', function() {
-    document.getElementById('donationPopup').style.display = 'none';
-});
-
-window.addEventListener('click', function(event) {
-    if (event.target === document.getElementById('donationPopup')) {
-        document.getElementById('donationPopup').style.display = 'none';
+// Add some CSS for better speed display
+const additionalStyles = `
+    body {
+        background: #f8f9fa;
     }
-});
+    
+    .card {
+        border: none;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .nav-pills .nav-link {
+        border-radius: 20px;
+        padding: 8px 20px;
+        margin: 0 5px;
+    }
+    
+    .nav-pills .nav-link.active {
+        background: linear-gradient(135deg, #0d6efd, #0dcaf0);
+    }
+    
+    .table {
+        margin-bottom: 0;
+    }
+    
+    .table > :not(:first-child) {
+        border-top: none;
+    }
+    
+    .traffic-data {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 6px;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    }
+    
+    .speed-indicator {
+        font-weight: 600;
+        font-size: 13px;
+    }
+    
+    .bytes-counter {
+        color: #6c757d;
+        font-size: 12px;
+    }
+    
+    .reconnect-button {
+        transition: all 0.2s;
+    }
+    
+    .reconnect-button:hover {
+        transform: translateY(-2px);
+    }
+    
+    .label {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+    }
+    
+    .bg-green {
+        background: #198754 !important;
+    }
+    
+    .bg-red {
+        background: #dc3545 !important;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        box-shadow: 0 0 0 0.25rem rgba(13,110,253,.15);
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        border-radius: 20px !important;
+        margin: 0 3px;
+        border: none !important;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: linear-gradient(135deg, #0d6efd, #0dcaf0) !important;
+        color: white !important;
+    }
+    
+    .notification {
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .speed-indicator {
+        font-weight: bold;
+        display: block;
+        margin-top: 4px;
+        font-size: 12px;
+    }
+    .traffic-data {
+        transition: all 0.3s ease;
+        padding: 8px;
+        border-radius: 4px;
+        background: rgba(0,0,0,0.02);
+    }
+    .traffic-icon {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 5px;
+        vertical-align: middle;
+        transition: background-color 0.3s ease;
+    }
+    .traffic-icon-green {
+        background-color: #28a745; /* Hijau untuk trafik rendah */
+    }
+    .traffic-icon-yellow {
+        background-color: #fd7e14; /* Orange untuk trafik sedang */
+    }
+    .traffic-icon-red {
+        background-color: #dc3545; /* Merah untuk trafik tinggi */
+    }
+    .reconnect-button {
+        transition: all 0.3s ease;
+    }
+    .reconnect-button:hover {
+        color: #ff0000 !important;
+        transform: scale(1.2);
+    }
+    .fa-spin {
+        animation: fa-spin 2s infinite linear;
+    }
+    @keyframes fa-spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    /* Card styling */
+    .panel-default {
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        background: white;
+        margin-bottom: 20px;
+    }
 
-document.getElementById('donationPopup').querySelector('.donate-button').addEventListener('click', function() {
-    window.open('https://buymeacoffee.com/kevindonisaputra', '_blank');
-});
+    /* Table styling */
+    .table {
+        margin-bottom: 0;
+    }
 
+    .table th {
+        background: #f8f9fa;
+        border-top: none;
+        font-weight: 600;
+        color: #495057;
+        text-transform: uppercase;
+        font-size: 12px;
+        padding: 12px 8px;
+    }
+
+    .table td {
+        padding: 12px 8px;
+        vertical-align: middle;
+    }
+
+    /* Traffic data styling */
+    .traffic-data {
+        background: #f8f9fa;
+        padding: 8px 12px;
+        border-radius: 6px;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .speed-indicator {
+        font-size: 13px;
+        font-weight: 600;
+        margin-top: 4px;
+    }
+
+    .bytes-counter {
+        color: #6c757d;
+        font-size: 12px;
+    }
+
+    /* Traffic icons */
+    .traffic-icon {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+        position: relative;
+        box-shadow: 0 0 0 2px rgba(255,255,255,0.8);
+    }
+
+    .traffic-icon-green {
+        background: linear-gradient(45deg, #28a745, #34ce57);
+    }
+
+    .traffic-icon-yellow {
+        background: linear-gradient(45deg, #fd7e14, #f9a352);
+    }
+
+    .traffic-icon-red {
+        background: linear-gradient(45deg, #dc3545, #e4606d);
+    }
+
+    /* Status labels */
+    .label {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .bg-green {
+        background: #28a745;
+        color: white;
+    }
+
+    .bg-red {
+        background: #dc3545;
+        color: white;
+    }
+
+    /* Action buttons */
+    .reconnect-button {
+        padding: 6px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        color: #dc3545;
+    }
+
+    .reconnect-button:hover {
+        background: rgba(220, 53, 69, 0.1);
+        transform: scale(1.1);
+    }
+
+    /* Search container */
+    .advanced-search-container {
+        background: #fff;
+        border-radius: 8px;
+        padding: 15px 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .form-control {
+        border-radius: 4px;
+        border: 1px solid #ced4da;
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+
+    .form-control:focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(13,110,253,.25);
+    }
+
+    /* Navigation tabs */
+    .nav-tabs {
+        border-bottom: none;
+        margin-bottom: 20px;
+    }
+
+    .nav-tabs > li > a {
+        border-radius: 6px;
+        padding: 10px 15px;
+        margin-right: 5px;
+        transition: all 0.2s ease;
+    }
+
+    .nav-tabs > li.active > a {
+        background: #007bff;
+        color: white;
+        border: none;
+    }
+
+    .nav-tabs > li > a:hover {
+        background: rgba(0,123,255,0.1);
+        border-color: transparent;
+    }
+
+    /* Responsive improvements */
+    @media (max-width: 768px) {
+        .panel-body {
+            padding: 10px;
+        }
+        
+        .table td, .table th {
+            padding: 8px 4px;
+            font-size: 13px;
+        }
+        
+        .traffic-data {
+            padding: 6px 8px;
+        }
+    }
+
+    /* Animation effects */
+    .traffic-data, .traffic-icon, .label {
+        transition: all 0.3s ease;
+    }
+
+    /* DataTables improvements */
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        border-radius: 20px;
+        padding: 5px 12px;
+        margin: 0 2px;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: #007bff;
+        border-color: #007bff;
+        color: white !important;
+    }
+
+    /* Modern Table Styling */
+    .table-responsive {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    }
+
+    .table {
+        border-collapse: separate;
+        border-spacing: 0 8px;
+        margin-top: -8px;
+    }
+
+    .table thead th {
+        background: #f8f9fa;
+        border: none;
+        padding: 15px 10px;
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        vertical-align: middle;
+    }
+
+    .table tbody tr {
+        box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        border-radius: 8px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .table tbody tr:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        background: #f8f9fa;
+    }
+
+    .table tbody td {
+        padding: 12px 10px;
+        vertical-align: middle;
+        border: none;
+        background: white;
+        font-size: 13px;
+    }
+
+    .table tbody tr:first-child td:first-child {
+        border-top-left-radius: 8px;
+        border-bottom-left-radius: 8px;
+    }
+
+    .table tbody tr:first-child td:last-child {
+        border-top-right-radius: 8px;
+        border-bottom-right-radius: 8px;
+    }
+
+    /* Traffic Data Cells */
+    .traffic-data {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 8px;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        min-width: 120px;
+    }
+
+    .bytes-counter {
+        color: #6c757d;
+        font-size: 11px;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .speed-indicator {
+        font-size: 14px;
+        font-weight: 600;
+        display: block;
+    }
+
+    /* Status Labels */
+    .label {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+        display: inline-block;
+        min-width: 85px;
+    }
+
+    .bg-green {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
+    }
+
+    .bg-red {
+        background: linear-gradient(135deg, #dc3545, #f86b7c);
+        color: white;
+        box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
+    }
+
+    /* Search Container Enhancement */
+    .advanced-search-container {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    }
+
+    .form-control {
+        border-radius: 6px;
+        border: 1px solid #e9ecef;
+        padding: 8px 16px;
+        font-size: 14px;
+        transition: all 0.2s ease;
+    }
+
+    .form-control:focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 3px rgba(0,123,255,.15);
+    }
+
+    /* DataTables Enhancements */
+    .dataTables_wrapper .dataTables_paginate {
+        padding: 15px 0;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        border-radius: 20px;
+        padding: 6px 14px;
+        margin: 0 3px;
+        border: none !important;
+        background: #f8f9fa !important;
+        color: #495057 !important;
+        transition: all 0.2s ease;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background: #e9ecef !important;
+        color: #212529 !important;
+        transform: translateY(-1px);
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+        background: linear-gradient(135deg, #007bff, #6610f2) !important;
+        color: white !important;
+        box-shadow: 0 2px 6px rgba(0,123,255,0.2);
+    }
+
+    .dataTables_length select {
+        border-radius: 6px;
+        padding: 6px 12px;
+        border: 1px solid #e9ecef;
+    }
+
+    /* Empty Table Styling */
+    .dataTables_empty {
+        padding: 48px !important;
+        font-size: 15px;
+        color: #6c757d;
+        text-align: center;
+        background: #f8f9fa !important;
+        border-radius: 8px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .table-responsive {
+            padding: 10px;
+        }
+        
+        .table td, .table th {
+            padding: 10px 6px;
+        }
+        
+        .traffic-data {
+            padding: 8px;
+            min-width: 100px;
+        }
+        
+        .label {
+            padding: 4px 8px;
+            min-width: 70px;
+        }
+    }
+
+    /* Adjust column widths after removing ID */
+    .table th:nth-child(1) { width: 15%; } /* Username */
+    .table th:nth-child(2) { width: 12%; } /* IP Address */
+    .table th:nth-child(3) { width: 10%; } /* Uptime */
+    .table th:nth-child(4) { width: 10%; } /* Service */
+    .table th:nth-child(5) { width: 12%; } /* Caller ID */
+    .table th:nth-child(6) { width: 10%; } /* Download */
+    .table th:nth-child(7) { width: 10%; } /* Upload */
+    .table th:nth-child(8) { width: 8%; }  /* Max Limit */
+    .table th:nth-child(9) { width: 8%; }  /* Total Usage */
+    .table th:nth-child(10) { width: 8%; } /* Status */
+    .table th:nth-child(11) { width: 7%; } /* Actions */
+
+    /* Modern Reconnect Button */
+    .btn-reconnect {
+        background: linear-gradient(135deg, #ff4646, #ff7676);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(255, 70, 70, 0.2);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-reconnect:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(255, 70, 70, 0.3);
+        background: linear-gradient(135deg, #ff3535, #ff6565);
+    }
+
+    .btn-reconnect:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(255, 70, 70, 0.2);
+    }
+
+    .btn-reconnect i {
+        font-size: 14px;
+    }
+
+    .btn-reconnect.loading {
+        opacity: 0.8;
+        cursor: wait;
+        background: linear-gradient(135deg, #888, #999);
+    }
+
+    /* Spin animation for loading state */
+    .btn-reconnect.loading i {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Notification styling */
+    .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 25px;
+        border-radius: 8px;
+        color: white;
+        z-index: 9999;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Override Bootstrap's default navbar styling */
+    .nav-pills {
+        border: none !important;
+    }
+
+    .nav-pills .nav-link {
+        border: none !important;
+        background: #f8f9fa;
+        color: #495057;
+        margin: 0 5px;
+        padding: 10px 20px;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .nav-pills .nav-link:hover {
+        background: #e9ecef;
+        transform: translateY(-1px);
+    }
+
+    .nav-pills .nav-link.active {
+        background: #0d6efd;
+        color: white;
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+    }
+
+    /* Clean DataTables styling */
+    .dataTables_wrapper {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+`;
 </script>
-
-
-
-{include file="sections/footer.tpl"}
