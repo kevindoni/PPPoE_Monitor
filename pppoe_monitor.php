@@ -31,22 +31,26 @@ function pppoe_monitor_router_getInterface()
         return [];
     }
 
-    $mikrotik = ORM::for_table('tbl_routers')->where('enabled', '1')->find_one($routerId);
+    try {
+        $mikrotik = ORM::for_table('tbl_routers')
+            ->where('enabled', '1')
+            ->find_one($routerId);
 
-    if (!$mikrotik) {
+        if (!$mikrotik) {
+            return [];
+        }
+
+        $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
+        $interfaces = $client->sendSync(new RouterOS\Request('/interface/print'));
+
+        return array_map(function($interface) {
+            return $interface->getProperty('name');
+        }, iterator_to_array($interfaces));
+
+    } catch (Exception $e) {
+        error_log('Error getting interfaces: ' . $e->getMessage());
         return [];
     }
-
-    $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
-    $interfaces = $client->sendSync(new RouterOS\Request('/interface/print'));
-
-    $interfaceList = [];
-    foreach ($interfaces as $interface) {
-        $name = $interface->getProperty('name');
-        $interfaceList[] = $name; // Jangan menghapus karakter < dan > dari nama interface
-    }
-
-    return $interfaceList;
 }
 
 function pppoe_monitor_router_get_combined_users() {
@@ -195,53 +199,80 @@ function pppoe_monitor_router_formatBytes($bytes, $precision = 2)
     return round($bytes, $precision) . ' ' . $units[$pow];
 }
 
-function pppoe_monitor_router_traffic()
-{
-    $interface = $_GET["interface"]; // Ambil interface dari parameter GET
-
-    // Contoh koneksi ke MikroTik menggunakan library tertentu (misalnya menggunakan ORM dan MikroTik API wrapper)
-    global $routes;
-    $router = $routes['2'];
-    $mikrotik = ORM::for_table('tbl_routers')->where('enabled', '1')->find_one($router);
-    $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
-
+function pppoe_monitor_router_traffic() {
     try {
-        $results = $client->sendSync(
-            (new RouterOS\Request('/interface/monitor-traffic'))
-                ->setArgument('interface', $interface)
-                ->setArgument('once', '')
-        );
-
-        $rows = array();
-        $rows2 = array();
-        $labels = array();
-
-        foreach ($results as $result) {
-            $ftx = $result->getProperty('tx-bits-per-second');
-            $frx = $result->getProperty('rx-bits-per-second');
-
-            // Timestamp dalam milidetik (millisecond)
-            $timestamp = time() * 1000;
-
-            $rows[] = $ftx;
-            $rows2[] = $frx;
-            $labels[] = $timestamp; // Tambahkan timestamp ke dalam array labels
+        global $routes;
+        $router = $routes['2'];
+        $username = $_GET['username'] ?? '';
+        
+        if (empty($username)) {
+            throw new Exception('Username parameter is required');
         }
 
-        $result = array(
-            'labels' => $labels,
-            'rows' => array(
-                'tx' => $rows,
-                'rx' => $rows2
-            )
-        );
-    } catch (Exception $e) {
-        $result = array('error' => $e->getMessage());
-    }
+        // Validate and sanitize username
+        $username = preg_replace('/[^a-zA-Z0-9_-]/', '', $username);
+        
+        $mikrotik = ORM::for_table('tbl_routers')
+            ->where('enabled', '1')
+            ->find_one($router);
 
-    // Set header untuk respons JSON
-    header('Content-Type: application/json');
-    echo json_encode($result);
+        if (!$mikrotik) {
+            throw new Exception('Router not found');
+        }
+
+        $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
+        $interface = "<pppoe-$username>";
+
+        // Get interface data
+        $interfaceData = $client->sendSync(
+            (new RouterOS\Request('/interface/print'))
+                ->setQuery(RouterOS\Query::where('name', $interface))
+        );
+
+        if (!count($interfaceData)) {
+            throw new Exception('Interface not found');
+        }
+
+        // Get total bytes
+        $bytes = [
+            'tx' => (int)$interfaceData[0]->getProperty('tx-byte'),
+            'rx' => (int)$interfaceData[0]->getProperty('rx-byte')
+        ];
+
+        // Get traffic speed
+        $traffic = $client->sendSync(
+            (new RouterOS\Request('/interface/monitor-traffic'))
+                ->setArgument('interface', $interface)
+                ->setArgument('once')
+        );
+
+        $response = [
+            'success' => true,
+            'timestamp' => time() * 1000,
+            'rows' => [
+                'tx' => [0],
+                'rx' => [0]
+            ],
+            'bytes' => $bytes
+        ];
+
+        if (count($traffic)) {
+            $response['rows']['tx'][0] = (int)$traffic[0]->getProperty('tx-bits-per-second');
+            $response['rows']['rx'][0] = (int)$traffic[0]->getProperty('rx-bits-per-second');
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode($response);
+
+    } catch (Exception $e) {
+        error_log("Traffic monitoring error for $username: " . $e->getMessage());
+        http_response_code(500);
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => false,
+            'error' => $e->getMessage()
+        ]);
+    }
 }
 
 function pppoe_monitor_router_online()
@@ -268,51 +299,55 @@ function pppoe_monitor_router_online()
     return $pppoeInterfaces;
 }
 
-function pppoe_monitor_router_delete_ppp_user()
-{
-    global $routes;
-    $router = $routes['2'];
-    $id = $_POST['id']; // Ambil .id dari POST data
-
-    // Cek apakah ID ada di POST data
-    if (empty($id)) {
-        header('Content-Type: application/json');
-        echo json_encode(['success' => false, 'message' => 'ID is missing.']);
-        return;
-    }
-
-    // Ambil detail router dari database
-    $mikrotik = ORM::for_table('tbl_routers')->where('enabled', '1')->find_one($router);
-
-    if (!$mikrotik) {
-        header('Content-Type: application/json');
-        echo json_encode(['success' => false, 'message' => 'Router not found.']);
-        return;
-    }
-
-    // Dapatkan klien MikroTik
-    $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
-
-    if (!$client) {
-        header('Content-Type: application/json');
-        echo json_encode(['success' => false, 'message' => 'Failed to connect to the router.']);
-        return;
-    }
-
+function pppoe_monitor_router_delete_ppp_user() {
     try {
-        // Buat permintaan untuk menghapus koneksi aktif PPPoE
-        $request = new RouterOS\Request('/ppp/active/remove');
-        $request->setArgument('.id', $id); // Gunakan .id yang sesuai
-        $client->sendSync($request);
+        global $routes;
+        $router = $routes['2'];
+        $id = $_POST['id'] ?? '';
+        $username = $_POST['username'] ?? '';
+
+        if (empty($id)) {
+            throw new Exception('User ID is required');
+        }
+
+        $mikrotik = ORM::for_table('tbl_routers')
+            ->where('enabled', '1')
+            ->find_one($router);
+
+        if (!$mikrotik) {
+            throw new Exception('Router not found');
+        }
+
+        $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
+
+        // First remove from active connections
+        $activeRequest = new RouterOS\Request('/ppp/active/print');
+        $activeRequest->setQuery(RouterOS\Query::where('name', $username));
+        $activeConnections = $client->sendSync($activeRequest);
+
+        foreach ($activeConnections as $connection) {
+            $removeRequest = new RouterOS\Request('/ppp/active/remove');
+            $removeRequest->setArgument('.id', $connection->getProperty('.id'));
+            $client->sendSync($removeRequest);
+        }
+
+        // Wait a moment for the disconnection to complete
+        sleep(1);
 
         header('Content-Type: application/json');
-        echo json_encode(['success' => true, 'message' => 'PPPoE user successfully deleted.']);
+        echo json_encode([
+            'success' => true,
+            'message' => 'User disconnected successfully'
+        ]);
+
     } catch (Exception $e) {
-        // Log error untuk debugging
-        error_log('Failed to delete PPPoE user: ' . $e->getMessage());
-
+        error_log('Disconnect error: ' . $e->getMessage());
+        http_response_code(500);
         header('Content-Type: application/json');
-        echo json_encode(['success' => false, 'message' => 'Failed to delete PPPoE user: ' . $e->getMessage()]);
+        echo json_encode([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
     }
 }
 
